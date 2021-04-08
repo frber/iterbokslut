@@ -5,8 +5,6 @@ import openpyxl
 
 
 
-
-
 class Gui:
     def __init__(self, master):
         self.master = master
@@ -39,7 +37,7 @@ class Gui:
         self.fingrad_label.grid(row=4, column=0)
 
         # Droplist finansiärer -tab2
-        self.finansiarer = self.hamta_fin() # Metod som hämtar finansiärer till lista.
+        self.finansiarer = self.hamta_fin()
         self.fin = StringVar()
         self.drop = OptionMenu(self.tab2, self.fin, "", *self.finansiarer)
         self.drop.grid(row=3, column=1, sticky="W")
@@ -65,7 +63,6 @@ class Gui:
         fin = df['FINANSIÄR'].tolist()
         return fin
 
-
     def hamta_projekt(self):
         wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
         ws = wb["Projekt"]
@@ -81,7 +78,6 @@ class Gui:
                         lista_projekt_i_db.append(str(projnum))
         wb.close()
         return lista_projekt_i_db
-
 
     def spara_till_db(self):
         projektnummer = self.projnum.get()
@@ -105,24 +101,24 @@ class Gui:
     def uppdatera_droplist_projekt(self):
         self.lista_projekt_i_db = self.hamta_projekt()
         self.drop2.set_menu("", *self.lista_projekt_i_db)
-
+        self.proj_db.set("")
 
     def ta_bort_fran_db(self):
-        print(self.proj_db.get())
-
-
-        #self.proj_db.set('')
-        #self.drop2.delete(0, 'end')
-
-
-
+        wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
+        ws = wb["Projekt"]
+        projnr = self.proj_db.get().split()[0]
+        c = 1
+        for row in ws['A2:A1000']:
+            for cell in row:
+                c+=1
+                if cell.value == projnr:
+                    ws.delete_rows(c)
+        wb.save('Docs/Projekt.xlsx')
+        self.uppdatera_droplist_projekt()
 
 def main():
     root = Tk()
     gui = Gui(root)
-    #root.geometry("680x350")
-    #finansiarer = hamta_fin()
-    #skapa_falt(root, finansiarer)
     root.mainloop()
 
 if __name__ == "__main__":
