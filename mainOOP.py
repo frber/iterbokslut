@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter.ttk import *
 import pandas as pd
 import openpyxl
+from skapaperforslag import *
 
 
 
@@ -14,9 +15,11 @@ class Gui:
         # Skapa tabs
         self.tabcontrol = Notebook(master)
         self.tab1 = Frame(self.tabcontrol)
-        self.tabcontrol.add(self.tab1, text="Hem")
+        self.tabcontrol.add(self.tab1, text="Start")
         self.tab2 = Frame(self.tabcontrol)
-        self.tabcontrol.add(self.tab2, text="Hantera projekt")
+        self.tabcontrol.add(self.tab2, text="Lägg till/Ta bort projekt")
+        self.tab3 = Frame(self.tabcontrol)
+        self.tabcontrol.add(self.tab3, text="Skapa periodiseringsförslag")
         self.tabcontrol.pack(expand=1, fill="both")
 
         # Projektnummer -tab2
@@ -58,6 +61,12 @@ class Gui:
         self.knapp_ta_bort = Button(self.tab2, text="Ta bort", command=self.ta_bort_fran_db)
         self.knapp_ta_bort.grid(row=7, column=1)
 
+        self.uppdatera_boxlista()
+
+        # Knapp Skapa förslag -tab3
+        self.knapp_skapa_forslag = Button(self.tab3, text="Skapa periodiseringsförslag", command=self.skapa_perforslag)
+        self.knapp_skapa_forslag.grid(row=7, column=1)
+
     def hamta_fin(self):
         df = pd.read_excel(r'Docs\Data.xlsx')
         fin = df['FINANSIÄR'].tolist()
@@ -97,6 +106,7 @@ class Gui:
         wb.save('Docs/Projekt.xlsx')
         wb.close()
         self.uppdatera_droplist_projekt()
+        self.uppdatera_boxlista()
 
     def uppdatera_droplist_projekt(self):
         self.lista_projekt_i_db = self.hamta_projekt()
@@ -114,7 +124,58 @@ class Gui:
                 if cell.value == projnr:
                     ws.delete_rows(c)
         wb.save('Docs/Projekt.xlsx')
+        wb.close()
         self.uppdatera_droplist_projekt()
+        self.ta_bort_boxar()
+
+    def uppdatera_boxlista(self):
+        wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
+        ws = wb["Projekt"]
+        lista_proj = []
+        for row in ws['A2:A1000']:
+            for cell in row:
+                projnr = cell.value
+                projnamn = cell.offset(column = 1).value
+                if projnr != None:
+                    if projnamn != None:
+                        lista_proj.append(str(projnr)+" "+str(projnamn))
+                    else:
+                        lista_proj.append(str(projnr))
+        self.boxlist_utfall = []
+        self.boxlist = []
+        if lista_proj:
+            rad = 1
+            for x in lista_proj:
+                box = IntVar()
+                checkbox = Checkbutton(self.tab3, text=x, variable=box)
+                checkbox.grid(row=rad, column=0, sticky="W")
+                rad +=1
+                self.boxlist_utfall.append([box, x])
+                self.boxlist.append(checkbox)
+        wb.close()
+
+    def ta_bort_boxar(self):
+        for x in self.boxlist:
+            x.destroy()
+        self.uppdatera_boxlista()
+
+    def skapa_perforslag(self):
+        wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
+        ws = wb["Projekt"]
+        for x in self.boxlist_utfall:
+            if x[0].get() == 1:
+                projnr_box = x[1].split()[0]
+                for row in ws['A2:A1000']:
+                    for cell in row:
+                        projnr_db = cell.value
+                        projnamn_db = cell.offset(column=1).value
+                        finansiar_db = cell.offset(column=2).value
+                        fingrad_db = cell.offset(column=3).value
+                        if projnr_box == projnr_db:
+                            skapa_per_forslag = SkapaPerForslag(projnr_db, projnamn_db, finansiar_db, fingrad_db)
+        wb.close()
+
+
 
 def main():
     root = Tk()
