@@ -1,8 +1,10 @@
 from tkinter import *
 from tkinter.ttk import *
+from tkinter import filedialog
 import pandas as pd
 import openpyxl
 from skapaperforslag import *
+import os
 
 
 
@@ -15,25 +17,50 @@ class Gui:
         # Skapa tabs
         self.tabcontrol = Notebook(master)
         self.tab1 = Frame(self.tabcontrol)
-        self.tabcontrol.add(self.tab1, text="Start")
+        self.tabcontrol.add(self.tab1, text="1. Start")
         self.tab2 = Frame(self.tabcontrol)
-        self.tabcontrol.add(self.tab2, text="Lägg till/Ta bort projekt")
+        self.tabcontrol.add(self.tab2, text="2. Lägg till/Ta bort projekt")
         self.tab3 = Frame(self.tabcontrol)
-        self.tabcontrol.add(self.tab3, text="Skapa periodiseringsförslag")
+        self.tabcontrol.add(self.tab3, text="3. Skapa periodiseringsförslag")
         self.tabcontrol.pack(expand=1, fill="both")
 
-        # Projektnummer -tab2
+        # Knapp Leta gamla berpers i - tab1
+        self.knapp_gamla_berpers = Button(self.tab1, text="Leta gamla berpers i", command=self.valj_gamla_berpers)
+        self.knapp_gamla_berpers.grid(row=0, column=0)
+
+        # Label filväg gamla berpers -tab1
+        self.label_gamla_berpers = Label(self.tab1, text="Ingen filväg vald")
+        self.label_gamla_berpers.grid(row=0, column=1)
+
+        # Knapp Spara nya berpers i -tab1
+        self.knapp_spara_berpers = Button(self.tab1, text="Spara nya berpers i", command=self.valj_spara_berpers)
+        self.knapp_spara_berpers.grid(row=1, column=0)
+
+        # Label filväg spara berpers -tab1
+        self.label_spara_berpers = Label(self.tab1, text="Ingen filväg vald")
+        self.label_spara_berpers.grid(row=1, column=1)
+
+
+        # Knapp Finansiärer
+        self.knapp_finans = Button(self.tab1, text="Finansiärer", command=self.doc_finans)
+        self.knapp_finans.grid(row=2, column=0)
+
+        # Knapp Lägg in agressodata -tab1
+        self.knapp_agressodata = Button(self.tab1, text="Lägg in agressodata", command=self.doc_agressodata)
+        self.knapp_agressodata.grid(row=3, column=0)
+
+        # Label Projektnummer -tab2
         self.projnum = Entry(self.tab2, width=30)
         self.projnum.grid(row=1, column=1)
         self.projnum_label = Label(self.tab2, text="Projektnummer:").grid(row=1, column=0)
 
-        # Projektnamn -tab2
+        # Label Projektnamn -tab2
         self.projnamn = Entry(self.tab2, width=30)
         self.projnamn.grid(row=2, column=1)
         self.projnamn_label = Label(self.tab2, text="Projektnamn:")
         self.projnamn_label.grid(row=2, column=0)
 
-        # Finansieringsgrad -tab2
+        # Label Finansieringsgrad -tab2
         self.fingrad = Entry(self.tab2, width=30)
         self.fingrad.grid(row=4, column=1)
         self.fingrad_label = Label(self.tab2, text="Finansieringsgrad:")
@@ -67,8 +94,32 @@ class Gui:
         self.knapp_skapa_forslag = Button(self.tab3, text="Skapa periodiseringsförslag", command=self.skapa_perforslag)
         self.knapp_skapa_forslag.grid(row=7, column=1)
 
+    def valj_gamla_berpers(self):
+        self.filvag_gamla_berpers = StringVar()
+        vald_filvag = filedialog.askdirectory()
+        self.filvag_gamla_berpers.set(vald_filvag)
+        self.label_gamla_berpers["text"] = vald_filvag
+
+    def valj_spara_berpers(self):
+        self.filvag_spara_berpers = StringVar()
+        vald_filvag = filedialog.askdirectory()
+        self.filvag_spara_berpers.set(vald_filvag)
+        self.label_spara_berpers["text"] = vald_filvag
+
+    def doc_finans(self):
+        os.startfile('Docs\\Finansiarer.xlsx')
+
+    def doc_agressodata(self):
+        self.uppdatera_droplist_finans()
+        os.startfile('Docs\\Agressodata.xlsx')
+
+    def uppdatera_droplist_finans(self):
+        self.finansiarer = self.hamta_fin()
+        self.drop.set_menu("", *self.finansiarer)
+        self.fin.set("")
+
     def hamta_fin(self):
-        df = pd.read_excel(r'Docs\Data.xlsx')
+        df = pd.read_excel(r'Docs\Finansiarer.xlsx')
         fin = df['FINANSIÄR'].tolist()
         return fin
 
@@ -160,6 +211,8 @@ class Gui:
         self.uppdatera_boxlista()
 
     def skapa_perforslag(self):
+        filvag_gamla_berpers = self.filvag_gamla_berpers.get()
+        filvag_spara_berpers = self.filvag_spara_berpers.get()
         wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
         ws = wb["Projekt"]
         for x in self.boxlist_utfall:
@@ -172,10 +225,8 @@ class Gui:
                         finansiar_db = cell.offset(column=2).value
                         fingrad_db = cell.offset(column=3).value
                         if projnr_box == projnr_db:
-                            skapa_per_forslag = SkapaPerForslag(projnr_db, projnamn_db, finansiar_db, fingrad_db)
+                            skapa_per_forslag = SkapaPerForslag(projnr_db, projnamn_db, finansiar_db, fingrad_db, filvag_gamla_berpers, filvag_spara_berpers)
         wb.close()
-
-
 
 def main():
     root = Tk()
