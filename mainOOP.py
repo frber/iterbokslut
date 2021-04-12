@@ -88,11 +88,19 @@ class Gui:
         self.knapp_ta_bort = Button(self.tab2, text="Ta bort", command=self.ta_bort_fran_db)
         self.knapp_ta_bort.grid(row=7, column=1)
 
+
+        self.boxlist = []
         self.uppdatera_boxlista()
+
+
+        # Knapp Ladda in projekt -tab3
+        #self.knapp_ladda_projekt = Button(self.tab3, text="Ladda in projekt", command=self.skapa_perforslag)
+        #self.knapp_ladda_projekt.grid(row=7, column=1)
+
 
         # Knapp Skapa förslag -tab3
         self.knapp_skapa_forslag = Button(self.tab3, text="Skapa periodiseringsförslag", command=self.skapa_perforslag)
-        self.knapp_skapa_forslag.grid(row=7, column=1)
+        self.knapp_skapa_forslag.grid(row=8, column=1)
 
     def valj_gamla_berpers(self):
         self.filvag_gamla_berpers = StringVar()
@@ -193,7 +201,7 @@ class Gui:
                     else:
                         lista_proj.append(str(projnr))
         self.boxlist_utfall = []
-        self.boxlist = []
+
         if lista_proj:
             rad = 1
             for x in lista_proj:
