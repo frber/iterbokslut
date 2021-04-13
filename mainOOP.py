@@ -3,16 +3,17 @@ from tkinter.ttk import *
 from tkinter import filedialog
 import pandas as pd
 import openpyxl
-from skapaperforslag import *
 import os
+import threading
 
-
+# Egna klasser
+from skapaperforslag import *
 
 class Gui:
     def __init__(self, master):
         self.master = master
         master.title("iterb")
-        master.geometry("680x350")
+        master.geometry("600x600")
 
         # Skapa tabs
         self.tabcontrol = Notebook(master)
@@ -88,6 +89,13 @@ class Gui:
         self.knapp_ta_bort = Button(self.tab2, text="Ta bort", command=self.ta_bort_fran_db)
         self.knapp_ta_bort.grid(row=7, column=1)
 
+        self.s = Style()
+        self.s.theme_use("winnative")
+        self.s.configure("blue.Horizontal.TProgressbar", foreground='navy', background='navy')
+        self.prog_bar = Progressbar(self.tab3, style="blue.Horizontal.TProgressbar", orient=HORIZONTAL, length=100,
+                                        maximum=100, mode='determinate')
+        self.prog_bar.grid(row=1, column=2)
+
 
         self.boxlist = []
         self.uppdatera_boxlista()
@@ -99,8 +107,8 @@ class Gui:
 
 
         # Knapp Skapa förslag -tab3
-        self.knapp_skapa_forslag = Button(self.tab3, text="Skapa periodiseringsförslag", command=self.skapa_perforslag)
-        self.knapp_skapa_forslag.grid(row=8, column=1)
+        self.knapp_skapa_forslag = Button(self.tab3, text="Skapa periodiseringsförslag", command=self.thread)
+        self.knapp_skapa_forslag.grid(row=8, column=4)
 
     def valj_gamla_berpers(self):
         self.filvag_gamla_berpers = StringVar()
@@ -204,11 +212,22 @@ class Gui:
 
         if lista_proj:
             rad = 1
+            rad2 = 1
+            rad3 = 1
             for x in lista_proj:
                 box = IntVar()
                 checkbox = Checkbutton(self.tab3, text=x, variable=box)
                 checkbox.grid(row=rad, column=0, sticky="W")
-                rad +=1
+                rad += 1
+                if rad > 20:
+                    checkbox.grid(row=rad2, column=1, sticky="W")
+                    rad2 += 1
+                if rad2 > 20:
+                    checkbox.grid(row=rad3, column=2, sticky="W")
+                    rad3 += 1
+
+
+
                 self.boxlist_utfall.append([box, x])
                 self.boxlist.append(checkbox)
         wb.close()
@@ -218,9 +237,20 @@ class Gui:
             x.destroy()
         self.uppdatera_boxlista()
 
+
+    def thread(self):
+        #Använder en annan thread så att gränssnittet inte fryser medans huvudprogrammet körs.
+        #Startar lokalt i en egen metod eftersom detta måste instansieras på nytt, annars: RuntimeError: threads can only be started once.
+        t = threading.Thread(target=self.skapa_perforslag, daemon=True)
+        t.start()
+
     def skapa_perforslag(self):
-        filvag_gamla_berpers = self.filvag_gamla_berpers.get()
-        filvag_spara_berpers = self.filvag_spara_berpers.get()
+        self.prog_bar.start(5)
+        filvag_gamla_berpers = r'C:\Users\berfre\Desktop\gamla berper'
+        filvag_spara_berpers = r'C:\Users\berfre\Desktop\testspara'
+        # Lägg till för dynamiskt sen
+        #filvag_gamla_berpers = self.filvag_gamla_berpers.get()
+        #filvag_spara_berpers = self.filvag_spara_berpers.get()
         wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
         ws = wb["Projekt"]
         for x in self.boxlist_utfall:
@@ -235,6 +265,7 @@ class Gui:
                         if projnr_box == projnr_db:
                             skapa_per_forslag = SkapaPerForslag(projnr_db, projnamn_db, finansiar_db, fingrad_db, filvag_gamla_berpers, filvag_spara_berpers)
         wb.close()
+        self.prog_bar.stop()
 
 def main():
     root = Tk()
