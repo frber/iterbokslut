@@ -226,8 +226,6 @@ class Gui:
                     checkbox.grid(row=rad3, column=2, sticky="W")
                     rad3 += 1
 
-
-
                 self.boxlist_utfall.append([box, x])
                 self.boxlist.append(checkbox)
         wb.close()
@@ -246,8 +244,8 @@ class Gui:
 
     def skapa_perforslag(self):
         self.prog_bar.start(5)
-        filvag_gamla_berpers = r'C:\Users\berfre\Desktop\gamla berper'
-        filvag_spara_berpers = r'C:\Users\berfre\Desktop\testspara'
+        filvag_gamla_berpers = r'C:\Users\Fredrik\Desktop\Gamla berper'
+        filvag_spara_berpers = r'C:\Users\Fredrik\Desktop\Testspara'
         # Lägg till för dynamiskt sen
         #filvag_gamla_berpers = self.filvag_gamla_berpers.get()
         #filvag_spara_berpers = self.filvag_spara_berpers.get()
