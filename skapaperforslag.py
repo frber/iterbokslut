@@ -5,11 +5,6 @@ from datetime import datetime
 
 
 
-
-
-
-
-
 class SkapaPerForslag:
 
     def __init__(self, projnr_db, projnamn_db, finansiar_db, fingrad_db, filvag_gamla_berpers, filvag_spara_berpers):
@@ -19,7 +14,6 @@ class SkapaPerForslag:
         self.fingrad_db = fingrad_db
         self.filvag_gamla_berpers = filvag_gamla_berpers
         self.filvag_spara_berpers = filvag_spara_berpers
-
         self.avgor_vilket_bokslut()
         self.hamta_agressodata()
 
@@ -70,7 +64,6 @@ class SkapaPerForslag:
                             continue
                         for sheet in wb_gammal.worksheets:
                             projnummer_gammal = sheet.cell(32, 8).value
-                            #print(projnummer_gammal)
                             if str(projnummer_gammal) == str(self.projnr_db):
                                 ny_berper = self.filvag_spara_berpers + "\\" + str(self.projnr_db) + ".xlsx"
                                 shutil.copy(filvag_gamal_berper, ny_berper)
@@ -103,6 +96,7 @@ class SkapaPerForslag:
                     #self.for_over_agressodata(wb, ny_berper, ny_sheet)
                     #return True
 
+
     def skapa_berper(self):
         orginal_berper = 'Docs\\Berper.xlsx'
         ny_berper =  self.filvag_spara_berpers+"\\"+str(self.projnr_db)+".xlsx"
@@ -125,8 +119,52 @@ class SkapaPerForslag:
             ws.cell(row=ws.max_row, column=2).value = kontotext
             ws.cell(row=ws.max_row, column=3).value = projektnr
             ws.cell(row=ws.max_row, column=4).value = belopp
-            wb.save(ny_berper)
-            wb.close()
+
+        self.ratt_bokslutsperiod(wb)
+        wb.save(ny_berper)
+        wb.close()
+        self.kalk_periodiseringsforslag(wb, ws)
+
+
+    def ratt_bokslutsperiod(self, wb):
+        if self.bokslutperiod == "T1":
+            ratt_bokslutsperiod = int(self.ar+"04")
+        if self.bokslutperiod == "T2":
+            ratt_bokslutsperiod = int(self.ar+"08")
+        if self.bokslutperiod == "T3":
+            ratt_bokslutsperiod = int(self.ar+"12")
+
+        for sheet in wb.worksheets:
+            hook = sheet.cell(31, 10).value
+            hook = str(hook)
+            hook = hook.lower()
+            if hook == "bokslutsperiod":
+                datum = sheet.cell(31, 11)
+                datum.value = ratt_bokslutsperiod
+
+    def kalk_periodiseringsforslag(self, wb, ws):
+        # Hämta vilkor för finansiär från finansiärdb
+        wb_fin = openpyxl.load_workbook('Docs\\Finansiarer.xlsx', data_only=True)
+        ws_fin = wb_fin['Data']
+
+        for row in ws_fin['A1:A1000']:
+            for cell in row:
+                if cell.value != None:
+                    if cell.value == self.finansiar_db:
+                        loner = cell.offset(column=1).value
+                        print(loner)
+
+        #for row in ws['A1:A500']:
+            #for cell in row:
+                #if cell.value != None:
+                    #print(cell.value)
+
+
+
+
+
+
+
 
 
 
