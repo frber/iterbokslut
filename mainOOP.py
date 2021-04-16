@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
+from ttkthemes import ThemedTk
 from tkinter import filedialog
 import pandas as pd
 import openpyxl
@@ -89,9 +90,9 @@ class Gui:
         self.knapp_ta_bort = Button(self.tab2, text="Ta bort", command=self.ta_bort_fran_db)
         self.knapp_ta_bort.grid(row=7, column=1)
 
-        self.s = Style()
-        self.s.theme_use("winnative")
-        self.s.configure("blue.Horizontal.TProgressbar", foreground='navy', background='navy')
+        #self.s = ttk.Style()
+        #self.s.theme_use("winnative")
+        #self.s.configure("blue.Horizontal.TProgressbar", foreground='navy', background='navy')
         self.prog_bar = Progressbar(self.tab3, style="blue.Horizontal.TProgressbar", orient=HORIZONTAL, length=100,
                                         maximum=100, mode='determinate')
         self.prog_bar.grid(row=1, column=2)
@@ -244,8 +245,8 @@ class Gui:
 
     def skapa_perforslag(self):
         self.prog_bar.start(5)
-        filvag_gamla_berpers = r'C:\Users\Fredrik\Desktop\Gamla berper'
-        filvag_spara_berpers = r'C:\Users\Fredrik\Desktop\Testspara'
+        filvag_gamla_berpers = r'C:\Users\berfre\Desktop\gamla berper'
+        filvag_spara_berpers = r'C:\Users\berfre\Desktop\testspara'
         # Lägg till för dynamiskt sen
         #filvag_gamla_berpers = self.filvag_gamla_berpers.get()
         #filvag_spara_berpers = self.filvag_spara_berpers.get()
@@ -266,7 +267,7 @@ class Gui:
         self.prog_bar.stop()
 
 def main():
-    root = Tk()
+    root = ThemedTk(theme="radiance")
     gui = Gui(root)
     root.mainloop()
 
