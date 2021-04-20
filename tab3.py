@@ -199,33 +199,16 @@ class Tab3:
             c += 1
 
     def uppdatera_trad_projekt(self):
-
         # Cleara Treeview
         c = 0
         for x in self.lista_trad:
             self.tree.delete(c)
             c += 1
-
         # Populera ny lista från databas
-        wb = openpyxl.load_workbook('Docs\\Projekt.xlsx', data_only=True)
-        ws = wb['Projekt']
-        self.lista_trad = []
-        for row in ws['A2:A1000']:
-            for cell in row:
-                projnr = cell.value
-                projnamn = cell.offset(column=1).value
-                fin = cell.offset(column=2).value
-                fingrad = cell.offset(column=3).value
-                if projnr != None:
-                    self.lista_trad.append([projnr, projnamn, fin, fingrad])
+        self.initiera_trad()
 
-        wb.close()
 
-        # Sätt in ny lista i Treeview
-        c2 = 0
-        for x in self.lista_trad:
-            self.tree.insert(parent='', index='end', iid=c2, values=(x[0], x[1], x[2], x[3]))
-            c2 += 1
+
 
     def uppdatera_boxlista(self):
 
@@ -288,11 +271,11 @@ class Tab3:
 
     def skapa_perforslag(self):
         self.prog_bar.start(4)
-        # filvag_gamla_berpers = r'C:\Users\berfre\Desktop\gamla berper'
-        # filvag_spara_berpers = r'C:\Users\berfre\Desktop\testspara'
+        filvag_gamla_berpers = r'C:\Users\berfre\Desktop\gamla berper'
+        filvag_spara_berpers = r'C:\Users\berfre\Desktop\testspara'
         # Lägg till för dynamiskt sen
-        filvag_gamla_berpers = self.tab1.get_fivlag_gamla_berper()
-        filvag_spara_berpers = self.tab1.get_filvag_spara_berpers()
+        #filvag_gamla_berpers = self.tab1.get_fivlag_gamla_berper()
+        #filvag_spara_berpers = self.tab1.get_filvag_spara_berpers()
         wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
         ws = wb["Projekt"]
         for x in self.boxlist_utfall:
