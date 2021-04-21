@@ -82,13 +82,14 @@ class Tab2:
 
         # Träd -tab3
         self.tree = Treeview(self.tab2)
-        self.tree['columns'] = ("Namn", "Motpart", "Perkonto fordran", "Perkonto skuld", "OH")
+        self.tree['columns'] = ("Namn", "Motpart", "Perkonto fordran", "Perkonto skuld", "OH", "Ej godk kostnader")
         self.tree.column("#0", width=0, stretch=NO)
         self.tree.column("Namn", anchor=W)
-        self.tree.column("Motpart", anchor=W)
-        self.tree.column("Perkonto fordran", anchor=W)
-        self.tree.column("Perkonto skuld", anchor=W)
+        self.tree.column("Motpart", anchor=W, width=100)
+        self.tree.column("Perkonto fordran", anchor=W, width=100)
+        self.tree.column("Perkonto skuld", anchor=W, width=100)
         self.tree.column("OH", anchor=W)
+        self.tree.column("Ej godk kostnader", anchor=W, width=600)
 
         self.tree.heading("#0", text="", anchor=W)
         self.tree.heading("Namn", text="Namn", anchor=W)
@@ -96,6 +97,7 @@ class Tab2:
         self.tree.heading("Perkonto fordran", text="Perkonto fordran", anchor=W)
         self.tree.heading("Perkonto skuld", text="Perkonto skuld", anchor=W)
         self.tree.heading("OH", text="OH", anchor=W)
+        self.tree.heading("Ej godk kostnader", text="Ej godk kostnader", anchor=W)
 
         self.tree.grid(row=13, column=1)
         self.initiera_trad()
@@ -158,7 +160,7 @@ class Tab2:
         if self.radio_varde == 1:
             ws.cell(row=ws.max_row, column=5).value = "All OH godkänd"
         if self.radio_varde == 2:
-            ws.cell(row=ws.max_row, column=5).value = "OH på totala kostnader"
+            ws.cell(row=ws.max_row, column=5).value = "OH på tot. kostnader"
             ws.cell(row=ws.max_row, column=6).value = self.procent_oh
         if self.radio_varde == 3:
             ws.cell(row=ws.max_row, column=5).value = "OH på lön"
@@ -181,9 +183,10 @@ class Tab2:
         wb = openpyxl.load_workbook('Docs\\Finansiarer.xlsx', data_only=True)
         ws = wb['Data']
         self.lista_trad = []
-        col = 7
-        self.lista_ej_godk = []
+
+
         for row in ws['A2:A1000']:
+
             for cell in row:
                 namn = cell.value
                 motp = cell.offset(column=1).value
@@ -191,27 +194,39 @@ class Tab2:
                 per_s = cell.offset(column=3).value
                 oh = cell.offset(column=4).value
                 oh_proc = cell.offset(column=5).value
+
+
+
+
                 #for x in range(1, 200):
                     #ej_godk = cell.offset(column=col).value
                     #if ej_godk != None:
                        # print(ej_godk)
                 if namn != None:
-                    self.lista_trad.append([namn, motp, per_f, per_s, oh, oh_proc])
+                    lista_ej_godk = []
+                    col = 6
+                    while col < 20:
+                        ej_godk = cell.offset(column=col).value
+                        col += 1
+                        if ej_godk != None:
+                            lista_ej_godk.append(ej_godk)
+                    ej_g = ', '.join(lista_ej_godk)
+                    self.lista_trad.append([namn, motp, per_f, per_s, oh, oh_proc, ej_g])
+
+
+
+
+
 
         wb.close()
 
         c = 0
         for x in self.lista_trad:
             if x[5] != None:
-                self.tree.insert(parent='', index='end', iid=c, values=(x[0], x[1], x[2], x[3], x[4]+", "+x[5]+"%"))
+                self.tree.insert(parent='', index='end', iid=c, values=(x[0], x[1], x[2], x[3], x[4]+", "+x[5]+"%", x[6]))
                 c += 1
-
-            #if x[5] != None and x[6] == None:
-                #self.tree.insert(parent='', index='end', iid=c,
-                                 #values=(x[0], x[1], x[2], x[3], x[4] + ", " + x[5] + "%", x[6]))
-
             else:
-                self.tree.insert(parent='', index='end', iid=c, values=(x[0], x[1], x[2], x[3], x[4]))
+                self.tree.insert(parent='', index='end', iid=c, values=(x[0], x[1], x[2], x[3], x[4], "", x[6]))
                 c += 1
 
     def uppdatera_trad(self):
