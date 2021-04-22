@@ -22,7 +22,8 @@ class Tab3:
         # Label Projektnummer -tab3
         self.projnum = Entry(self.tab3, width=30)
         self.projnum.grid(row=1, column=1)
-        self.projnum_label = Label(self.tab3, text="Projektnummer:").grid(row=1, column=0)
+        self.projnum_label = Label(self.tab3, text="Projektnummer:")
+        self.projnum_label.grid(row=1, column=0)
 
         # Label Projektnamn -tab3
         self.projnamn = Entry(self.tab3, width=30)
