@@ -8,88 +8,101 @@ import os
 import threading
 
 
-
+from tab3 import *
 
 
 
 class Tab2:
-    def __init__(self, tab2):
+    def __init__(self, tab2, tab3):
 
         self.tab2 = tab2
+        self.tab3 = tab3
+
+        #ENTRY----------------------------------------------
+
+        ent_y = 40
+        ent_x = 40
 
         #  Namn
-        self.finnamn = Entry(self.tab2, width=30)
-        self.finnamn.grid(row=1, column=1)
         self.finnamn_label = Label(self.tab2, text="Namn:")
-        self.finnamn_label.grid(row=1, column=0)
+        self.finnamn_label.place(y=ent_y, x=ent_x)
+        self.finnamn = Entry(self.tab2, width=31)
+        self.finnamn.place(y=ent_y, x=ent_x+45)
 
         # Motpart
-        self.motp = Entry(self.tab2, width=30)
-        self.motp.grid(row=2, column=1)
         self.motp_label = Label(self.tab2, text="Motpart:")
-        self.motp_label.grid(row=2, column=0)
+        self.motp_label.place(y=ent_y+30, x=ent_x)
+        self.motp = Entry(self.tab2, width=10)
+        self.motp.place(y=ent_y+30, x=ent_x+55)
 
         # Perkonto fordran
-        self.perf = Entry(self.tab2, width=30)
-        self.perf.grid(row=3, column=1)
         self.perf_label = Label(self.tab2, text="Perkonto fordran:")
-        self.perf_label.grid(row=3, column=0)
+        self.perf_label.place(y=ent_y+60, x=ent_x)
+        self.perf = Entry(self.tab2, width=10)
+        self.perf.place(y=ent_y+60, x=ent_x+100)
 
         # Perkonto skuld
-        self.pers = Entry(self.tab2, width=30)
-        self.pers.grid(row=4, column=1)
         self.pers_label = Label(self.tab2, text="Perkonto skuld:")
-        self.pers_label.grid(row=4, column=0)
+        self.pers_label.place(y=ent_y+90, x=ent_x)
+        self.pers = Entry(self.tab2, width=10)
+        self.pers.place(y=ent_y+90, x=ent_x+100)
+
 
         # Radio OH
+        radio_y = ent_y+120
+        radio_x = 40
         self.ent_c = 0
         self.lista_ent = []
         self.lista_ent_label = []
         self.radio_var = IntVar()
         self.radio_ja = Radiobutton(self.tab2, text="Godkänner all OH", variable=self.radio_var, value=1, command=self.ta_bort_entry)
-        self.radio_ja.grid(row=5, column=1, sticky="W")
-        self.radio_dir = Radiobutton(self.tab2, text="Godkänner % på totala kostnader", variable=self.radio_var, value=2, command=self.skapa_entry)
-        self.radio_dir.grid(row=6, column=1, sticky="W")
+        self.radio_ja.place(y=radio_y, x=radio_x)
+        self.radio_dir = Radiobutton(self.tab2, text="Godkänner % på totala direkta kostnader", variable=self.radio_var, value=2, command=self.skapa_entry)
+        self.radio_dir.place(y=radio_y+30, x=radio_x)
         self.radio_dir = Radiobutton(self.tab2, text="Godkänner % på lönekostnader", variable=self.radio_var, value=3, command=self.skapa_entry)
-        self.radio_dir.grid(row=7, column=1, sticky="W")
+        self.radio_dir.place(y=radio_y+60, x=radio_x)
         self.radio_ingen = Radiobutton(self.tab2, text="Godkänner ingen OH", variable=self.radio_var, value=4, command=self.ta_bort_entry)
-        self.radio_ingen.grid(row=8, column=1, sticky="W")
+        self.radio_ingen.place(y=radio_y+90, x=radio_x)
 
         # Listbox in
         self.lista_valda_kostnader = []
-        self.test_k = ["Lönekostnader", "5612", "4928"]
-        self.listbox_in = Listbox(self.tab2, height='10')
-        self.listbox_in.grid(row=10, column=0)
+        self.kontogrupper = self.hamta_kontogrupper()
+        self.listbox_in = Listbox(self.tab2, height='15', width='25')
+        self.listbox_in.place(y=50, x=400)
 
-        for a in self.test_k:
+        for a in self.kontogrupper:
             self.listbox_in.insert(END, a)
 
         # Knapp för över listbox
         self.knapp_lagg_till = Button(self.tab2, text="--->", command=self.for_over_listbox)
-        self.knapp_lagg_till.grid(row=10, column=1)
+        self.knapp_lagg_till.place(y=120, x=600)
 
         # Knapp ta bort listbox
         self.knapp_ta_bort = Button(self.tab2, text="<---", command=self.ta_bort_listbox)
-        self.knapp_ta_bort.grid(row=11, column=1)
+        self.knapp_ta_bort.place(y=190, x=600)
 
         # Listbox ut
-        self.listbox_ut = Listbox(self.tab2, height='10')
-        self.listbox_ut.grid(row=10, column=2)
+        self.listbox_ut = Listbox(self.tab2, height='15', width='25')
+        self.listbox_ut.place(y=50, x=700)
 
         # Knapp Spara i db
         self.knapp_spara_db = Button(self.tab2, text="Spara till databas", command=self.spara_till_db)
-        self.knapp_spara_db.grid(row=12, column=0)
+        self.knapp_spara_db.place(y=320, x=40)
 
-        # Träd -tab3
+        # Knapp ta bort från db
+        self.ta_bort = Button(self.tab2, text="Ta bort från databas", command=self.ta_bort_fran_db)
+        self.ta_bort.place(y=630, x=1330)
+
+        # Träd
         self.tree = Treeview(self.tab2)
-        self.tree['columns'] = ("Namn", "Motpart", "Perkonto fordran", "Perkonto skuld", "OH", "Ej godk kostnader")
+        self.tree['columns'] = ("Namn", "Motpart", "Perkonto fordran", "Perkonto skuld", "OH", "Ej godkända kostnader")
         self.tree.column("#0", width=0, stretch=NO)
         self.tree.column("Namn", anchor=W)
         self.tree.column("Motpart", anchor=W, width=100)
         self.tree.column("Perkonto fordran", anchor=W, width=100)
         self.tree.column("Perkonto skuld", anchor=W, width=100)
         self.tree.column("OH", anchor=W)
-        self.tree.column("Ej godk kostnader", anchor=W, width=600)
+        self.tree.column("Ej godkända kostnader", anchor=W, width=600)
 
         self.tree.heading("#0", text="", anchor=W)
         self.tree.heading("Namn", text="Namn", anchor=W)
@@ -97,17 +110,24 @@ class Tab2:
         self.tree.heading("Perkonto fordran", text="Perkonto fordran", anchor=W)
         self.tree.heading("Perkonto skuld", text="Perkonto skuld", anchor=W)
         self.tree.heading("OH", text="OH", anchor=W)
-        self.tree.heading("Ej godk kostnader", text="Ej godk kostnader", anchor=W)
+        self.tree.heading("Ej godkända kostnader", text="Ej godkända kostnader", anchor=W)
 
-        self.tree.grid(row=13, column=1)
+        self.tree.place(y=400, x=150)
         self.initiera_trad()
+
+    def hamta_kontogrupper(self):
+        df = pd.read_excel(r'Docs\Konton.xlsx')
+        kontogrupp = df['Rel.värde (T)'].tolist()
+        kontogrupp = list(set(kontogrupp))
+        return kontogrupp
 
     def skapa_entry(self):
         self.ent_c = 1
-        self.oh_ent = Entry(self.tab2, width=30)
-        self.oh_ent.grid(row=9, column=1)
-        self.oh_ent_label = Label(self.tab2, text="Ange %")
-        self.oh_ent_label.grid(row=9, column=0)
+        self.oh_ent_label = Label(self.tab2, text="Ange godkänd %")
+        self.oh_ent_label.place(y=280, x=40)
+        self.oh_ent = Entry(self.tab2, width=10)
+        self.oh_ent.place(y=280, x=150)
+
         self.lista_ent.append(self.oh_ent)
         self.lista_ent_label.append(self.oh_ent_label)
 
@@ -138,7 +158,7 @@ class Tab2:
         self.per_s = self.pers.get()
         self.pers.delete(0, END)
         self.radio_varde = self.radio_var.get()
-        self.radio_var.set(None)
+        self.radio_var.set(0)
         self.ej_godk_kostnader = self.lista_valda_kostnader
 
         if self.ent_c > 0:
@@ -178,15 +198,13 @@ class Tab2:
         wb.save('Docs/Finansiarer.xlsx')
         wb.close()
         self.uppdatera_trad()
+        self.tab3.uppdatera_droplist_finans()
 
     def initiera_trad(self):
         wb = openpyxl.load_workbook('Docs\\Finansiarer.xlsx', data_only=True)
         ws = wb['Data']
         self.lista_trad = []
-
-
         for row in ws['A2:A1000']:
-
             for cell in row:
                 namn = cell.value
                 motp = cell.offset(column=1).value
@@ -194,14 +212,6 @@ class Tab2:
                 per_s = cell.offset(column=3).value
                 oh = cell.offset(column=4).value
                 oh_proc = cell.offset(column=5).value
-
-
-
-
-                #for x in range(1, 200):
-                    #ej_godk = cell.offset(column=col).value
-                    #if ej_godk != None:
-                       # print(ej_godk)
                 if namn != None:
                     lista_ej_godk = []
                     col = 6
@@ -212,12 +222,8 @@ class Tab2:
                             lista_ej_godk.append(ej_godk)
                     ej_g = ', '.join(lista_ej_godk)
                     self.lista_trad.append([namn, motp, per_f, per_s, oh, oh_proc, ej_g])
-
-
-
-
-
-
+        print(self.lista_trad)
+        self.lista_valda_kostnader = []
         wb.close()
 
         c = 0
@@ -226,7 +232,7 @@ class Tab2:
                 self.tree.insert(parent='', index='end', iid=c, values=(x[0], x[1], x[2], x[3], x[4]+", "+x[5]+"%", x[6]))
                 c += 1
             else:
-                self.tree.insert(parent='', index='end', iid=c, values=(x[0], x[1], x[2], x[3], x[4], "", x[6]))
+                self.tree.insert(parent='', index='end', iid=c, values=(x[0], x[1], x[2], x[3], x[4], x[6]))
                 c += 1
 
     def uppdatera_trad(self):
@@ -237,6 +243,27 @@ class Tab2:
             c += 1
         # Populera ny lista från databas
         self.initiera_trad()
+
+    def ta_bort_fran_db(self):
+        wb = openpyxl.load_workbook('Docs/Finansiarer.xlsx', data_only=True)
+        ws = wb["Data"]
+
+        # Hämta värden projektnummer från val i Treeview
+        i = self.tree.focus()
+        d = self.tree.item(i)
+        val = d['values']
+        namn = val[0]
+
+        c = 1
+        for row in ws['A2:A1000']:
+            for cell in row:
+                c += 1
+                if str(cell.value) == str(namn):
+                    ws.delete_rows(c)
+        wb.save('Docs/Finansiarer.xlsx')
+        wb.close()
+        self.uppdatera_trad()
+        self.tab3.uppdatera_droplist_finans()
 
 
 
