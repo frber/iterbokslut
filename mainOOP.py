@@ -16,7 +16,7 @@ class Gui:
     def __init__(self, master):
         self.master = master
         master.title("iterb")
-        master.geometry("1200x800")
+        master.geometry("1600x800")
         # Skapa tabs
         tabcontrol = Notebook(master)
         tab1 = Frame(tabcontrol)
@@ -30,8 +30,8 @@ class Gui:
         tabcontrol.pack(expand=1, fill="both")
 
         tab1 = Tab1(tab1)
-        tab2 = Tab2(tab2)
         tab3 = Tab3(tab3, tab1)
+        tab2 = Tab2(tab2, tab3)
 
 
 def main():
