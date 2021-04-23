@@ -67,27 +67,58 @@ class Tab2:
         # Listbox in
         self.lista_valda_kostnader = []
         self.kontogrupper = self.hamta_kontogrupper()
-        self.listbox_in = Listbox(self.tab2, height='15', width='25')
+        self.listbox_in = Listbox(self.tab2, height='15', width='25', exportselection=False)
         self.listbox_in.place(y=50, x=400)
+
+        self.listbox_in.bind('<<ListboxSelect>>', self.speca_kontogrupp)
 
         for a in self.kontogrupper:
             self.listbox_in.insert(END, a)
-
-        # Knapp för över listbox
-        self.knapp_lagg_till = Button(self.tab2, text="--->", command=self.for_over_listbox)
-        self.knapp_lagg_till.place(y=120, x=600)
-
-        # Knapp ta bort listbox
-        self.knapp_ta_bort = Button(self.tab2, text="<---", command=self.ta_bort_listbox)
-        self.knapp_ta_bort.place(y=190, x=600)
+        #Label listbox in
+        self.label_listbox_in = Label(self.tab2, text="Kontogrupper")
+        self.label_listbox_in.place(y=20, x=430)
 
         # Listbox ut
-        self.listbox_ut = Listbox(self.tab2, height='15', width='25')
+        self.listbox_ut = Listbox(self.tab2, height='15', width='60')
         self.listbox_ut.place(y=50, x=700)
+        # Label listbox ut
+        self.listbox_ut_label = Label(self.tab2, text="Ej godkända kostnader")
+        self.listbox_ut_label.place(y=20, x=810)
+
+        # Listbox spec kontogrupp
+        self.listbox_kontogrupp = Listbox(self.tab2, height='15', width='60')
+        self.listbox_kontogrupp.place(y=50, x=1200)
+        # Label listbox spec kontogrupp
+        self.listbox_ut_label = Label(self.tab2, text="Kontospecifikation")
+        self.listbox_ut_label.place(y=20, x=1330)
+
+
+
+
+        # Knapp för över listbox kontogrupp
+        self.knapp_lagg_till_grupp = Button(self.tab2, text="   --->", command=self.for_over_listbox_grupp)
+        self.knapp_lagg_till_grupp.place(y=120, x=600)
+
+        # Knapp ta bort listbox kontogrupp
+        self.knapp_ta_bort_grupp = Button(self.tab2, text="   <---", command=self.ta_bort_listbox)
+        self.knapp_ta_bort_grupp.place(y=190, x=600)
+
+        # Knapp för över listbox kontospec
+        self.knapp_lagg_till_spec = Button(self.tab2, text="   <---", command=self.for_over_listbox_spec)
+        self.knapp_lagg_till_spec.place(y=120, x=1100)
+
+        # Knapp ta bort listbox kontospec
+        self.knapp_ta_bort_spec = Button(self.tab2, text="   --->", command=self.ta_bort_listbox)
+        self.knapp_ta_bort_spec.place(y=190, x=1100)
+
+
+
+
+
 
         # Knapp Spara i db
         self.knapp_spara_db = Button(self.tab2, text="Spara till databas", command=self.spara_till_db)
-        self.knapp_spara_db.place(y=320, x=40)
+        self.knapp_spara_db.place(y=630, x=150)
 
         # Knapp ta bort från db
         self.ta_bort = Button(self.tab2, text="Ta bort från databas", command=self.ta_bort_fran_db)
@@ -139,10 +170,38 @@ class Tab2:
                 y.destroy()
         self.ent_c = 0
 
+    def speca_kontogrupp(self, event):
+        self.listbox_kontogrupp.delete(0, END)
+        select = self.listbox_in.curselection()
+        if select:
+            varde = self.listbox_in.get(select)
+            wb = openpyxl.load_workbook('Docs/Konton.xlsx', data_only=True)
+            ws = wb["Konton"]
 
-    def for_over_listbox(self):
+            output_lista = []
+            for row in ws['B1:B1000']:
+                for cell in row:
+                    if cell.value != None:
+                        kontogrupp = cell.value
+                        if varde == kontogrupp:
+                            kontonr = cell.offset(column=1).value
+                            kontonamn = cell.offset(column=2).value
+                            if kontonamn != None and len(str(kontonr)) > 3:
+                                output = str(kontonr) + " " + str(kontonamn)
+                                output_lista.append(output)
+            wb.close()
+            if output_lista:
+                for x in output_lista:
+                    self.listbox_kontogrupp.insert(END, x)
+
+
+    def for_over_listbox_grupp(self):
         self.listbox_ut.insert(END, self.listbox_in.get(ANCHOR))
         self.lista_valda_kostnader.append(self.listbox_in.get(ANCHOR))
+
+    def for_over_listbox_spec(self):
+        self.listbox_ut.insert(END, self.listbox_kontogrupp.get(ANCHOR))
+        self.lista_valda_kostnader.append(self.listbox_kontogrupp.get(ANCHOR))
 
     def ta_bort_listbox(self):
         self.lista_valda_kostnader.remove(self.listbox_ut.get(ANCHOR))
@@ -191,7 +250,7 @@ class Tab2:
         col = 7
         if self.ej_godk_kostnader:
             for x in self.ej_godk_kostnader:
-                ws.cell(row=ws.max_row, column=col).value = x
+                ws.cell(row=ws.max_row, column=col).value = x.split()[0]
                 col+=1
 
 
@@ -222,7 +281,6 @@ class Tab2:
                             lista_ej_godk.append(ej_godk)
                     ej_g = ', '.join(lista_ej_godk)
                     self.lista_trad.append([namn, motp, per_f, per_s, oh, oh_proc, ej_g])
-        print(self.lista_trad)
         self.lista_valda_kostnader = []
         wb.close()
 
