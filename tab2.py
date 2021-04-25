@@ -111,11 +111,6 @@ class Tab2:
         self.knapp_ta_bort_spec = Button(self.tab2, text="   --->", command=self.ta_bort_listbox)
         self.knapp_ta_bort_spec.place(y=190, x=1100)
 
-
-
-
-
-
         # Knapp Spara i db
         self.knapp_spara_db = Button(self.tab2, text="Spara till databas", command=self.spara_till_db)
         self.knapp_spara_db.place(y=630, x=150)
@@ -201,7 +196,7 @@ class Tab2:
 
     def for_over_listbox_spec(self):
         self.listbox_ut.insert(END, self.listbox_kontogrupp.get(ANCHOR))
-        self.lista_valda_kostnader.append(self.listbox_kontogrupp.get(ANCHOR))
+        self.lista_valda_kostnader.append(self.listbox_kontogrupp.get(ANCHOR).split()[0])
 
     def ta_bort_listbox(self):
         self.lista_valda_kostnader.remove(self.listbox_ut.get(ANCHOR))
@@ -250,7 +245,7 @@ class Tab2:
         col = 7
         if self.ej_godk_kostnader:
             for x in self.ej_godk_kostnader:
-                ws.cell(row=ws.max_row, column=col).value = x.split()[0]
+                ws.cell(row=ws.max_row, column=col).value = x
                 col+=1
 
 
