@@ -19,31 +19,66 @@ class Tab3:
         self.tab3 = tab3
         self.tab1 = tab1
 
-        # Label Projektnummer -tab3
-        self.projnum = Entry(self.tab3, width=30)
-        self.projnum.grid(row=1, column=1)
+        rel_y = 40
+        rel_x = 40
+
+        # Projektnummer
         self.projnum_label = Label(self.tab3, text="Projektnummer:")
-        self.projnum_label.grid(row=1, column=0)
+        self.projnum_label.place(y=rel_y, x=rel_x)
+        self.projnum = Entry(self.tab3, width=25)
+        self.projnum.place(y=rel_y, x=rel_x+100)
 
-        # Label Projektnamn -tab3
-        self.projnamn = Entry(self.tab3, width=30)
-        self.projnamn.grid(row=2, column=1)
+
+        # Projektnamn
         self.projnamn_label = Label(self.tab3, text="Projektnamn:")
-        self.projnamn_label.grid(row=2, column=0)
+        self.projnamn_label.place(y=rel_y+30, x=rel_x)
+        self.projnamn = Entry(self.tab3, width=30)
+        self.projnamn.place(y=rel_y+30, x=rel_x+100)
 
-        # Label Finansieringsgrad -tab3
-        self.fingrad = Entry(self.tab3, width=30)
-        self.fingrad.grid(row=4, column=1)
-        self.fingrad_label = Label(self.tab3, text="Finansieringsgrad:")
-        self.fingrad_label.grid(row=4, column=0)
-
-        # Droplist finansiärer -tab3
+        # Droplist finansiär 1
+        self.fin_label1 = Label(self.tab3, text="Finansiär 1")
+        self.fin_label1.place(y=rel_y + 90, x=rel_x)
         self.finansiarer = self.hamta_fin()
-        self.fin = StringVar()
-        self.drop = OptionMenu(self.tab3, self.fin, "", *self.finansiarer)
-        self.drop.grid(row=3, column=1, sticky="W")
-        self.fin_label = Label(self.tab3, text="Finansiär:")
-        self.fin_label.grid(row=3, column=0)
+        self.fin1 = StringVar()
+        self.drop1 = OptionMenu(self.tab3, self.fin1, "", *self.finansiarer)
+        self.drop1.place(y=rel_y + 120, x=rel_x)
+
+
+        # Finansieringsgrad 1
+        self.fingrad_label1 = Label(self.tab3, text="Finansieringsgrad:")
+        self.fingrad_label1.place(y=rel_y+150, x=rel_x)
+        self.fingrad1 = Entry(self.tab3, width=10)
+        self.fingrad1.place(y=rel_y+150, x=rel_x+100)
+
+        # Droplist finansiär 2
+        self.fin_label2 = Label(self.tab3, text="Finansiär 2")
+        self.fin_label2.place(y=rel_y + 200, x=rel_x)
+        self.finansiarer = self.hamta_fin()
+        self.fin2 = StringVar()
+        self.drop2 = OptionMenu(self.tab3, self.fin2, "", *self.finansiarer)
+        self.drop2.place(y=rel_y + 230, x=rel_x)
+
+        # Finansieringsgrad 2
+        self.fingrad_label2 = Label(self.tab3, text="Finansieringsgrad:")
+        self.fingrad_label2.place(y=rel_y + 260, x=rel_x)
+        self.fingrad2 = Entry(self.tab3, width=10)
+        self.fingrad2.place(y=rel_y + 260, x=rel_x + 100)
+
+        # Droplist finansiär 3
+        self.fin_label3 = Label(self.tab3, text="Finansiär 3")
+        self.fin_label3.place(y=rel_y + 310, x=rel_x)
+        self.finansiarer = self.hamta_fin()
+        self.fin3 = StringVar()
+        self.drop3 = OptionMenu(self.tab3, self.fin3, "", *self.finansiarer)
+        self.drop3.place(y=rel_y + 340, x=rel_x)
+
+        # Finansieringsgrad 3
+        self.fingrad_label3 = Label(self.tab3, text="Finansieringsgrad:")
+        self.fingrad_label3.place(y=rel_y + 370, x=rel_x)
+        self.fingrad3 = Entry(self.tab3, width=10)
+        self.fingrad3.place(y=rel_y + 370, x=rel_x + 100)
+
+
 
         # Droplist projekt från db -tab3
         # self.lista_projekt_i_db = self.hamta_projekt()
@@ -53,28 +88,32 @@ class Tab3:
 
         # Knapp Lägg till -tab3
         self.knapp_lagg_till = Button(self.tab3, text="Lägg till", command=self.spara_till_db)
-        self.knapp_lagg_till.grid(row=5, column=1)
+        #self.knapp_lagg_till.grid(row=5, column=1)
 
         # Knapp Ta bort -tab3
         self.knapp_ta_bort = Button(self.tab3, text="Ta bort", command=self.ta_bort_fran_db)
-        self.knapp_ta_bort.grid(row=8, column=1)
+        #self.knapp_ta_bort.grid(row=8, column=1)
 
-        # Träd -tab3
+        # Träd
         self.tree = Treeview(self.tab3)
-        self.tree['columns'] = ("Projektnummer", "Projektnamn", "Finansiär", "% Finansering")
+        self.tree['columns'] = ("Projektnummer", "Projektnamn", "Finansiär 1", "Finansiär 2", "Finansiär 3")
         self.tree.column("#0", width=0, stretch=NO)
         self.tree.column("Projektnummer", anchor=W)
         self.tree.column("Projektnamn", anchor=W)
-        self.tree.column("Finansiär", anchor=W)
-        self.tree.column("% Finansering", anchor=W)
+        self.tree.column("Finansiär 1", anchor=W)
+        self.tree.column("Finansiär 2", anchor=W)
+        self.tree.column("Finansiär 3", anchor=W)
 
         self.tree.heading("#0", text="", anchor=W)
         self.tree.heading("Projektnummer", text="Projektnummer", anchor=W)
         self.tree.heading("Projektnamn", text="Projektnamn", anchor=W)
-        self.tree.heading("Finansiär", text="Finansiär", anchor=W)
-        self.tree.heading("% Finansering", text="% Finansering", anchor=W)
+        self.tree.heading("Finansiär 1", text="Finansiär 1", anchor=W)
+        self.tree.heading("Finansiär 2", text="Finansiär 2", anchor=W)
+        self.tree.heading("Finansiär 3", text="Finansiär 3", anchor=W)
 
-        self.tree.grid(row=7, column=1)
+        self.tree.place(y=50, x=400)
+
+        #self.tree.grid(row=7, column=1)
         self.initiera_trad()
 
         # Prognar -tab3
@@ -82,14 +121,14 @@ class Tab3:
         # self.s.theme_use("winnative")
         # self.s.configure("blue.Horizontal.TProgressbar", foreground='navy', background='navy')
         self.prog_bar = Progressbar(self.tab3, orient=HORIZONTAL, length=100, maximum=100, mode='indeterminate')
-        self.prog_bar.grid(row=10, column=5)
+        #self.prog_bar.grid(row=10, column=5)
 
         self.boxlist = []
         self.uppdatera_boxlista()
 
         # Knapp Skapa perförslag -tab3
         self.knapp_skapa_forslag = Button(self.tab3, text="Skapa Periodiseringsförslag", command=self.thread)
-        self.knapp_skapa_forslag.grid(row=10, column=4)
+        #self.knapp_skapa_forslag.grid(row=10, column=4)
 
     def valj_gamla_berpers(self):
         self.filvag_gamla_berpers = StringVar()
@@ -105,8 +144,12 @@ class Tab3:
 
     def uppdatera_droplist_finans(self):
         self.finansiarer = self.hamta_fin()
-        self.drop.set_menu("", *self.finansiarer)
-        self.fin.set("")
+        self.drop1.set_menu("", *self.finansiarer)
+        self.fin1.set("")
+        self.drop2.set_menu("", *self.finansiarer)
+        self.fin2.set("")
+        self.drop3.set_menu("", *self.finansiarer)
+        self.fin3.set("")
 
     def hamta_fin(self):
         df = pd.read_excel(r'Docs\Finansiarer.xlsx')
@@ -246,13 +289,13 @@ class Tab3:
                 if str(x.split()[0]) in lista_proj_agresso:
                     box = IntVar()
                     checkbox = Checkbutton(self.tab3, text=x, variable=box)
-                    checkbox.grid(row=rad, column=0, sticky="W")
+                    #checkbox.grid(row=rad, column=0, sticky="W")
                     rad += 1
                     if rad > 20:
-                        checkbox.grid(row=rad2, column=1, sticky="W")
+                        #checkbox.grid(row=rad2, column=1, sticky="W")
                         rad2 += 1
                     if rad2 > 20:
-                        checkbox.grid(row=rad3, column=2, sticky="W")
+                        #checkbox.grid(row=rad3, column=2, sticky="W")
                         rad3 += 1
 
                     self.boxlist_utfall.append([box, x])
