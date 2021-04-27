@@ -16,7 +16,7 @@ class Tab4:
 
 
         self.label_forslag =  Label(self.tab4, text="Möjliga projekt att periodisera")
-        self.label_forslag.grid(row=0, column=0, pady=5)
+        self.label_forslag.grid(row=0, column=0, pady=5, padx=10)
         self.knapp_skapa_forslag = Button(self.tab4, text="Skapa Periodiseringsförslag", command=self.thread)
         self.prog_bar = Progressbar(self.tab4, orient=HORIZONTAL, length=100, maximum=100, mode='indeterminate')
 
@@ -61,13 +61,13 @@ class Tab4:
                 if str(x.split()[0]) in lista_proj_agresso:
                     box = IntVar()
                     checkbox = Checkbutton(self.tab4, text=x, variable=box)
-                    checkbox.grid(row=rad, column=0, sticky="W", pady=2)
+                    checkbox.grid(row=rad, column=0, sticky="W", pady=2, padx=10)
                     rad += 1
                     if rad > 25:
-                        checkbox.grid(row=rad2, column=1, sticky="W")
+                        checkbox.grid(row=rad2, column=1, sticky="W", pady=2, padx=10)
                         rad2 += 1
                     if rad2 > 25:
-                        checkbox.grid(row=rad3, column=2, sticky="W")
+                        checkbox.grid(row=rad3, column=2, sticky="W", pady=2, padx=10)
                         rad3 += 1
 
                     self.boxlist_utfall.append([box, x])
