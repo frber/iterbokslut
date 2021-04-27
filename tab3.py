@@ -2,22 +2,25 @@ from tkinter import *
 from tkinter.ttk import *
 from ttkthemes import ThemedTk
 from tkinter import filedialog
+from tkinter import messagebox
 import pandas as pd
 import openpyxl
 import os
 import threading
 
 
-from tab1 import*
+from tab1 import *
+from tab4 import *
 from skapaperforslag import *
 
 
 class Tab3:
 
-    def __init__(self, tab3, tab1):
+    def __init__(self, tab1, tab3, tab4):
 
-        self.tab3 = tab3
         self.tab1 = tab1
+        self.tab3 = tab3
+        self.tab4 = tab4
 
         rel_y = 40
         rel_x = 40
@@ -88,11 +91,11 @@ class Tab3:
 
         # Knapp Lägg till -tab3
         self.knapp_lagg_till = Button(self.tab3, text="Lägg till", command=self.spara_till_db)
-        #self.knapp_lagg_till.grid(row=5, column=1)
+        self.knapp_lagg_till.place(y=280, x=400)
 
         # Knapp Ta bort -tab3
         self.knapp_ta_bort = Button(self.tab3, text="Ta bort", command=self.ta_bort_fran_db)
-        #self.knapp_ta_bort.grid(row=8, column=1)
+        self.knapp_ta_bort.place(y=280, x=1340)
 
         # Träd
         self.tree = Treeview(self.tab3)
@@ -113,22 +116,27 @@ class Tab3:
 
         self.tree.place(y=50, x=400)
 
-        #self.tree.grid(row=7, column=1)
+
         self.initiera_trad()
 
         # Prognar -tab3
         # self.s = ttk.Style()
         # self.s.theme_use("winnative")
         # self.s.configure("blue.Horizontal.TProgressbar", foreground='navy', background='navy')
-        self.prog_bar = Progressbar(self.tab3, orient=HORIZONTAL, length=100, maximum=100, mode='indeterminate')
+
         #self.prog_bar.grid(row=10, column=5)
 
-        self.boxlist = []
-        self.uppdatera_boxlista()
+        self.placering_y = 600
+        self.placering_x = 400
+        #self.boxlist = []
+        #elf.uppdatera_boxlista()
+        self.tab4.uppdatera_boxlista()
 
         # Knapp Skapa perförslag -tab3
-        self.knapp_skapa_forslag = Button(self.tab3, text="Skapa Periodiseringsförslag", command=self.thread)
+
         #self.knapp_skapa_forslag.grid(row=10, column=4)
+
+
 
     def valj_gamla_berpers(self):
         self.filvag_gamla_berpers = StringVar()
@@ -174,24 +182,55 @@ class Tab3:
 
     def spara_till_db(self):
         projektnummer = self.projnum.get()
+        print(projektnummer)
         self.projnum.delete(0, END)
         projektnamn = self.projnamn.get()
         self.projnamn.delete(0, END)
-        finansiar = self.fin.get()
-        self.fin.set("")
-        finansieringsgrad = self.fingrad.get()
-        self.fingrad.delete(0, END)
+        finansiar1 = self.fin1.get()
+        self.fin1.set("")
+        finansieringsgrad1 = self.fingrad1.get()
+        self.fingrad1.delete(0, END)
+        finansiar2 = self.fin2.get()
+        self.fin2.set("")
+        finansieringsgrad2 = self.fingrad2.get()
+        self.fingrad2.delete(0, END)
+        finansiar3 = self.fin3.get()
+        self.fin3.set("")
+        finansieringsgrad3 = self.fingrad3.get()
+        self.fingrad3.delete(0, END)
+
+        if self.kontrollera_dubbel(projektnummer):
+            wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
+            ws = wb["Projekt"]
+            ws.cell(row=ws.max_row + 1, column=1).value = projektnummer
+            ws.cell(row=ws.max_row, column=2).value = projektnamn
+            ws.cell(row=ws.max_row, column=3).value = finansiar1
+            ws.cell(row=ws.max_row, column=4).value = finansieringsgrad1
+            ws.cell(row=ws.max_row, column=5).value = finansiar2
+            ws.cell(row=ws.max_row, column=6).value = finansieringsgrad2
+            ws.cell(row=ws.max_row, column=7).value = finansiar3
+            ws.cell(row=ws.max_row, column=8).value = finansieringsgrad3
+            wb.save('Docs/Projekt.xlsx')
+            wb.close()
+            self.tab4.uppdatera_boxlista()
+            self.uppdatera_trad_projekt()
+
+    def kontrollera_dubbel(self, projektnummer):
         wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
         ws = wb["Projekt"]
-        ws.cell(row=ws.max_row + 1, column=1).value = projektnummer
-        ws.cell(row=ws.max_row, column=2).value = projektnamn
-        ws.cell(row=ws.max_row, column=3).value = finansiar
-        ws.cell(row=ws.max_row, column=4).value = finansieringsgrad
-        wb.save('Docs/Projekt.xlsx')
-        wb.close()
-        # self.uppdatera_droplist_projekt()
-        self.uppdatera_boxlista()
-        self.uppdatera_trad_projekt()
+        kontroll_projekt = []
+        for row in ws['A1:A1000']:
+            for cell in row:
+                if cell.value != None:
+                    kontroll_projekt.append(str(cell.value))
+        if str(projektnummer) in kontroll_projekt:
+            messagebox.showerror("OBS!", "Projektnummer finns redan i databasen!")
+        if len(projektnummer) == 0:
+            messagebox.showerror("OBS!", "Skriv in ett projektnummer!")
+        else:
+            return True
+
+
 
     def uppdatera_droplist_projekt(self):
         # Används ej just nu
@@ -219,7 +258,8 @@ class Tab3:
         wb.close()
 
         # self.uppdatera_droplist_projekt()
-        self.ta_bort_boxar()
+        #self.ta_bort_boxar()
+        self.tab4.ta_bort_boxar()
         self.uppdatera_trad_projekt()
 
     def initiera_trad(self):
@@ -230,17 +270,34 @@ class Tab3:
             for cell in row:
                 projnr = cell.value
                 projnamn = cell.offset(column=1).value
-                fin = cell.offset(column=2).value
-                fingrad = cell.offset(column=3).value
+                fin1 = cell.offset(column=2).value
+                fingrad1 = cell.offset(column=3).value
+                fin2 = cell.offset(column=4).value
+                fingrad2 = cell.offset(column=5).value
+                fin3 = cell.offset(column=6).value
+                fingrad3 = cell.offset(column=7).value
                 if projnr != None:
-                    self.lista_trad.append([projnr, projnamn, fin, fingrad])
+                    if fin1 == None:
+                        self.lista_trad.append([projnr, projnamn, "","",""])
+                    if fin1 != None and fin2 == None:
+                        self.lista_trad.append([projnr, projnamn, str(fin1)+", "+str(fingrad1)+"%", "", ""])
+                    if fin1 != None and fin2 != None and fin3 == None:
+                        self.lista_trad.append([projnr, projnamn, str(fin1) + ", " + str(fingrad1) + "%",
+                        str(fin2) + ", " + str(fingrad2) + "%",
+                        ""])
+                    if fin1 != None and fin2 != None and fin3 != None:
+                        self.lista_trad.append([projnr, projnamn, str(fin1) + ", " + str(fingrad1) + "%",
+                                                str(fin2) + ", " + str(fingrad2) + "%",
+                                                str(fin3) + ", " + str(fingrad3) + "%"])
+
+
 
         wb.close()
 
         c = 0
         for x in self.lista_trad:
-            self.tree.insert(parent='', index='end', iid=c, values=(x[0], x[1], x[2], x[3]))
-            c += 1
+            self.tree.insert(parent='', index='end', iid=c, values=(x[0], x[1], x[2], x[3], x[4]))
+            c +=1
 
     def uppdatera_trad_projekt(self):
         # Cleara Treeview
@@ -251,91 +308,6 @@ class Tab3:
         # Populera ny lista från databas
         self.initiera_trad()
 
-
-
-
-    def uppdatera_boxlista(self):
-
-        wb_agressodata = openpyxl.load_workbook('Docs/Agressodata.xlsx', data_only=True)
-        ws_agresso = wb_agressodata['Agressodata']
-        lista_proj_agresso = []
-        for row in ws_agresso['C1:C1000']:
-            for cell in row:
-                if cell.value != None:
-                    lista_proj_agresso.append(str(cell.value))
-
-        wb_agressodata.close()
-
-        wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
-        ws = wb["Projekt"]
-        lista_proj = []
-        for row in ws['A2:A1000']:
-            for cell in row:
-                projnr = cell.value
-                projnamn = cell.offset(column=1).value
-                if projnr != None:
-                    if projnamn != None:
-                        lista_proj.append(str(projnr) + " " + str(projnamn))
-                    else:
-                        lista_proj.append(str(projnr))
-
-        self.boxlist_utfall = []
-        if lista_proj_agresso and lista_proj:
-            lista_proj_agresso = set(lista_proj_agresso)
-            rad = 9
-            rad2 = 9
-            rad3 = 9
-            for x in lista_proj:
-                if str(x.split()[0]) in lista_proj_agresso:
-                    box = IntVar()
-                    checkbox = Checkbutton(self.tab3, text=x, variable=box)
-                    #checkbox.grid(row=rad, column=0, sticky="W")
-                    rad += 1
-                    if rad > 20:
-                        #checkbox.grid(row=rad2, column=1, sticky="W")
-                        rad2 += 1
-                    if rad2 > 20:
-                        #checkbox.grid(row=rad3, column=2, sticky="W")
-                        rad3 += 1
-
-                    self.boxlist_utfall.append([box, x])
-                    self.boxlist.append(checkbox)
-        wb.close()
-
-    def ta_bort_boxar(self):
-        for x in self.boxlist:
-            x.destroy()
-        self.uppdatera_boxlista()
-
-    def thread(self):
-        # Använder en annan thread så att gränssnittet inte fryser medans huvudprogrammet körs.
-        # Startar lokalt i en egen metod eftersom detta måste instansieras på nytt, annars: RuntimeError: threads can only be started once.
-        t = threading.Thread(target=self.skapa_perforslag, daemon=True)
-        t.start()
-
-    def skapa_perforslag(self):
-        self.prog_bar.start(4)
-        filvag_gamla_berpers = r'C:\Users\berfre\Desktop\gamla berper'
-        filvag_spara_berpers = r'C:\Users\berfre\Desktop\testspara'
-        # Lägg till för dynamiskt sen
-        #filvag_gamla_berpers = self.tab1.get_fivlag_gamla_berper()
-        #filvag_spara_berpers = self.tab1.get_filvag_spara_berpers()
-        wb = openpyxl.load_workbook('Docs/Projekt.xlsx', data_only=True)
-        ws = wb["Projekt"]
-        for x in self.boxlist_utfall:
-            if x[0].get() == 1:
-                projnr_box = x[1].split()[0]
-                for row in ws['A2:A1000']:
-                    for cell in row:
-                        projnr_db = cell.value
-                        projnamn_db = cell.offset(column=1).value
-                        finansiar_db = cell.offset(column=2).value
-                        fingrad_db = cell.offset(column=3).value
-                        if projnr_box == projnr_db:
-                            skapa_per_forslag = SkapaPerForslag(projnr_db, projnamn_db, finansiar_db, fingrad_db,
-                                                                filvag_gamla_berpers, filvag_spara_berpers)
-        wb.close()
-        self.prog_bar.stop()
 
 
 
