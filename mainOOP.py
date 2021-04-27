@@ -11,6 +11,7 @@ import threading
 from tab1 import *
 from tab2 import *
 from tab3 import *
+from tab4 import *
 
 class Gui:
     def __init__(self, master):
@@ -25,13 +26,19 @@ class Gui:
         tabcontrol.add(tab2, text="2. Lägg till/Ta bort Finansiär")
         tab3 = Frame(tabcontrol)
         tabcontrol.add(tab3, text="3. Lägg till/Ta bort Projekt")
+        tab4 = Frame(tabcontrol)
+        tabcontrol.add(tab4, text="4. Skapa periodiseringsförlsag")
         #self.tab4 = Frame(self.tabcontrol)
         #self.tabcontrol.add(self.tab4, text="3. Skapa periodiseringsförslag")
         tabcontrol.pack(expand=1, fill="both")
 
         tab1 = Tab1(tab1)
-        tab3 = Tab3(tab3, tab1)
+        tab4 = Tab4(tab4)
+        tab3 = Tab3(tab1, tab3, tab4)
         tab2 = Tab2(tab2, tab3)
+
+
+
 
 
 def main():
