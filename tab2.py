@@ -100,7 +100,7 @@ class Tab2:
         self.knapp_lagg_till_grupp.place(y=120, x=600)
 
         # Knapp ta bort listbox kontogrupp
-        self.knapp_ta_bort_grupp = Button(self.tab2, text="   <---", command=self.ta_bort_listbox)
+        self.knapp_ta_bort_grupp = Button(self.tab2, text="   <---", command=self.ta_bort_listbox_grupp)
         self.knapp_ta_bort_grupp.place(y=190, x=600)
 
         # Knapp för över listbox kontospec
@@ -108,7 +108,7 @@ class Tab2:
         self.knapp_lagg_till_spec.place(y=120, x=1100)
 
         # Knapp ta bort listbox kontospec
-        self.knapp_ta_bort_spec = Button(self.tab2, text="   --->", command=self.ta_bort_listbox)
+        self.knapp_ta_bort_spec = Button(self.tab2, text="   --->", command=self.ta_bort_listbox_spec)
         self.knapp_ta_bort_spec.place(y=190, x=1100)
 
         # Knapp Spara i db
@@ -198,8 +198,12 @@ class Tab2:
         self.listbox_ut.insert(END, self.listbox_kontogrupp.get(ANCHOR))
         self.lista_valda_kostnader.append(self.listbox_kontogrupp.get(ANCHOR).split()[0])
 
-    def ta_bort_listbox(self):
+    def ta_bort_listbox_grupp(self):
         self.lista_valda_kostnader.remove(self.listbox_ut.get(ANCHOR))
+        self.listbox_ut.delete(ANCHOR)
+
+    def ta_bort_listbox_spec(self):
+        self.lista_valda_kostnader.remove(self.listbox_ut.get(ANCHOR).split()[0])
         self.listbox_ut.delete(ANCHOR)
 
     def spara_till_db(self):
