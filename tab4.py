@@ -13,12 +13,14 @@ class Tab4:
 
     def __init__(self, tab4):
         self.tab4 = tab4
-        self.boxlist = []
+
 
         self.label_forslag =  Label(self.tab4, text="Möjliga projekt att periodisera")
         self.label_forslag.grid(row=0, column=0, pady=5)
         self.knapp_skapa_forslag = Button(self.tab4, text="Skapa Periodiseringsförslag", command=self.thread)
         self.prog_bar = Progressbar(self.tab4, orient=HORIZONTAL, length=100, maximum=100, mode='indeterminate')
+
+        self.boxlist = []
 
 
 
