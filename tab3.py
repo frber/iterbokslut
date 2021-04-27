@@ -182,7 +182,6 @@ class Tab3:
 
     def spara_till_db(self):
         projektnummer = self.projnum.get()
-        print(projektnummer)
         self.projnum.delete(0, END)
         projektnamn = self.projnamn.get()
         self.projnamn.delete(0, END)
@@ -225,8 +224,10 @@ class Tab3:
                     kontroll_projekt.append(str(cell.value))
         if str(projektnummer) in kontroll_projekt:
             messagebox.showerror("OBS!", "Projektnummer finns redan i databasen!")
+            return False
         if len(projektnummer) == 0:
             messagebox.showerror("OBS!", "Skriv in ett projektnummer!")
+            return False
         else:
             return True
 
