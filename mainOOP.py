@@ -33,7 +33,7 @@ class Gui:
         tabcontrol.pack(expand=1, fill="both")
 
         tab1 = Tab1(tab1)
-        tab4 = Tab4(tab4)
+        tab4 = Tab4(tab4, tab1)
         tab3 = Tab3(tab1, tab3, tab4)
         tab2 = Tab2(tab2, tab3)
 
