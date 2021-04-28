@@ -212,6 +212,7 @@ class Tab3:
             wb.save('Docs/Projekt.xlsx')
             wb.close()
             self.tab4.uppdatera_boxlista()
+            self.tab4.reset_label()
             self.uppdatera_trad_projekt()
 
     def kontrollera_dubbel(self, projektnummer):
@@ -261,6 +262,7 @@ class Tab3:
         # self.uppdatera_droplist_projekt()
         #self.ta_bort_boxar()
         self.tab4.ta_bort_boxar()
+        self.tab4.reset_label()
         self.uppdatera_trad_projekt()
 
     def initiera_trad(self):
