@@ -207,56 +207,77 @@ class Tab2:
         self.listbox_ut.delete(ANCHOR)
 
     def spara_till_db(self):
+
+
         self.namn = self.finnamn.get()
-        self.finnamn.delete(0, END)
-        self.motpart = self.motp.get()
-        self.motp.delete(0, END)
-        self.per_f = self.perf.get()
-        self.perf.delete(0, END)
-        self.per_s = self.pers.get()
-        self.pers.delete(0, END)
-        self.radio_varde = self.radio_var.get()
-        self.radio_var.set(0)
-        self.ej_godk_kostnader = self.lista_valda_kostnader
+        if self.kontrollera_dubbel():
+            self.finnamn.delete(0, END)
+            self.motpart = self.motp.get()
+            self.motp.delete(0, END)
+            self.per_f = self.perf.get()
+            self.perf.delete(0, END)
+            self.per_s = self.pers.get()
+            self.pers.delete(0, END)
+            self.radio_varde = self.radio_var.get()
+            self.radio_var.set(0)
+            self.ej_godk_kostnader = self.lista_valda_kostnader
 
-        if self.ent_c > 0:
-            self.procent_oh = self.oh_ent.get()
-            self.ta_bort_entry()
+            if self.ent_c > 0:
+                self.procent_oh = self.oh_ent.get()
+                self.ta_bort_entry()
 
-        self.listbox_ut.delete(0, END)
+            self.listbox_ut.delete(0, END)
 
+            wb = openpyxl.load_workbook('Docs/Finansiarer.xlsx', data_only=True)
+            ws = wb["Data"]
+
+            ws.cell(row=ws.max_row + 1, column=1).value = self.namn
+            ws.cell(row=ws.max_row, column=2).value = self.motpart
+            ws.cell(row=ws.max_row, column=3).value = self.per_f
+            ws.cell(row=ws.max_row, column=4).value = self.per_s
+
+            if self.radio_varde == 0 or self.radio_varde == None:
+                pass
+            if self.radio_varde == 1:
+                ws.cell(row=ws.max_row, column=5).value = "All OH godkänd"
+            if self.radio_varde == 2:
+                ws.cell(row=ws.max_row, column=5).value = "OH på tot. kostnader"
+                ws.cell(row=ws.max_row, column=6).value = self.procent_oh
+            if self.radio_varde == 3:
+                ws.cell(row=ws.max_row, column=5).value = "OH på lön"
+                ws.cell(row=ws.max_row, column=6).value = self.procent_oh
+            if self.radio_varde == 4:
+                ws.cell(row=ws.max_row, column=5).value = "Ingen OH"
+
+            col = 7
+            if self.ej_godk_kostnader:
+                for x in self.ej_godk_kostnader:
+                    ws.cell(row=ws.max_row, column=col).value = x
+                    col+=1
+
+
+            wb.save('Docs/Finansiarer.xlsx')
+            wb.close()
+            self.uppdatera_trad()
+            self.tab3.uppdatera_droplist_finans()
+
+    def kontrollera_dubbel(self):
         wb = openpyxl.load_workbook('Docs/Finansiarer.xlsx', data_only=True)
         ws = wb["Data"]
+        kontroll_namn = []
+        for row in ws['A1:A1000']:
+            for cell in row:
+                if cell.value != None:
+                    kontroll_namn.append(str(cell.value))
+        if str(self.namn) in kontroll_namn:
+            messagebox.showerror("OBS!", "Namn på finansiär finns redan i databasen!")
+            return False
+        if len(self.namn) == 0:
+            messagebox.showerror("OBS!", "Skriv in ett namn på finansiären!")
+            return False
+        else:
+            return True
 
-        ws.cell(row=ws.max_row + 1, column=1).value = self.namn
-        ws.cell(row=ws.max_row, column=2).value = self.motpart
-        ws.cell(row=ws.max_row, column=3).value = self.per_f
-        ws.cell(row=ws.max_row, column=4).value = self.per_s
-
-        if self.radio_varde == 0 or self.radio_varde == None:
-            pass
-        if self.radio_varde == 1:
-            ws.cell(row=ws.max_row, column=5).value = "All OH godkänd"
-        if self.radio_varde == 2:
-            ws.cell(row=ws.max_row, column=5).value = "OH på tot. kostnader"
-            ws.cell(row=ws.max_row, column=6).value = self.procent_oh
-        if self.radio_varde == 3:
-            ws.cell(row=ws.max_row, column=5).value = "OH på lön"
-            ws.cell(row=ws.max_row, column=6).value = self.procent_oh
-        if self.radio_varde == 4:
-            ws.cell(row=ws.max_row, column=5).value = "Ingen OH"
-
-        col = 7
-        if self.ej_godk_kostnader:
-            for x in self.ej_godk_kostnader:
-                ws.cell(row=ws.max_row, column=col).value = x
-                col+=1
-
-
-        wb.save('Docs/Finansiarer.xlsx')
-        wb.close()
-        self.uppdatera_trad()
-        self.tab3.uppdatera_droplist_finans()
 
     def initiera_trad(self):
         wb = openpyxl.load_workbook('Docs\\Finansiarer.xlsx', data_only=True)
