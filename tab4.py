@@ -139,8 +139,8 @@ class Tab4:
 
     def skapa_perforslag(self):
         self.prog_bar.start(4)
-        filvag_gamla_berpers = r'C:\Users\Fredrik\Desktop\Gamla berper'
-        filvag_spara_berpers = r'C:\Users\Fredrik\Desktop\Testspara'
+        filvag_gamla_berpers = r'C:\Users\berfre\Desktop\gamla berperr'
+        filvag_spara_berpers = r'C:\Users\berfre\Desktop\testspara'
         # Lägg till för dynamiskt sen
         # filvag_gamla_berpers = self.tab1.get_fivlag_gamla_berper()
         # filvag_spara_berpers = self.tab1.get_filvag_spara_berpers()
