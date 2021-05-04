@@ -23,12 +23,13 @@ class SkapaPerForslag:
         self.manad = self.idag.strftime("%m")
         self.manad = int(self.manad.split("0")[1])
 
-        if self.manad > 2 and self.manad < 5:
+        if self.manad > 2 and self.manad <= 5:
             self.bokslutperiod = "T1"
-        if self.manad > 5 and self.manad < 12:
+        if 5 < self.manad < 12:
             self.bokslutperiod = "T2"
         if self.manad < 2 or self.manad == 12:
             self.bokslutperiod = "T3"
+
 
     def hamta_agressodata(self):
         wb_agresso = openpyxl.load_workbook('Docs/Agressodata.xlsx', data_only=True)
@@ -157,6 +158,10 @@ class SkapaPerForslag:
                 oh_procent = self.hamta_info_fin(finansiar)[4]
                 lista_ej_godk_kost = self.hamta_info_fin(finansiar)[5]
                 lista_ej_godk_kost_utokad = self.hamta_lista_ej_godk(lista_ej_godk_kost)
+                lista_direkta_kostnader = self.hamta_direkta_och_lonekostnader()[0]
+                lista_lonekostnader = self.hamta_direkta_och_lonekostnader()[1]
+
+
 
                 cell_fin = ws_berper_perforslag.cell(rad, col)
                 cell_fin.value = finansiar
@@ -176,26 +181,54 @@ class SkapaPerForslag:
                             kontonr_berper = cell.value
                             kontonamn_berper = cell.offset(column=1).value
                             belopp_cell = cell.offset(column=3)
+
+                            #Avgör ej godkända kostnader
                             for x in lista_ej_godk_kost_utokad:
                                 if str(kontonr_berper) == str(x):
                                     ej_godk_kostnader = ws_berper_perforslag.cell(rad_kost, col)
                                     ej_godk_kostnader.value = "="+str(belopp_cell.coordinate)
                                     rad_kost +=1
-
-
+                            #Avgör godkända kostnader
                             if isinstance(kontonr_berper, int):
                                 if kontonr_berper >= 4000 and str(kontonr_berper) != str(x):
                                     godk_kostnader = ws_berper_perforslag.cell(rad_kost2, col+1)
                                     godk_kostnader.value = "="+str(belopp_cell.coordinate)
                                     rad_kost2 +=1
+                            #Avgör direkta kostnader
+                            for y in lista_direkta_kostnader:
+                                if str(kontonr_berper) == str(y):
+                                    pass
+                            #Avgör lönekostnader
+                            for z in lista_lonekostnader:
+                                if str(kontonr_berper) == str(z):
+                                    print(z)
+
+
+
 
 
 
         wb_berper.save(ny_berper)
 
+    def hamta_direkta_och_lonekostnader(self):
+        wb_konton = openpyxl.load_workbook('Docs\\Konton.xlsx', data_only=True)
+        ws_direkta = wb_konton['Direkta kostnader']
+        ws_loner = wb_konton['Lönekostnader']
 
+        lista_direkta = []
+        lista_loner = []
 
+        for row in ws_direkta['C1:C1000']:
+            for cell in row:
+                if cell.value != None:
+                    lista_direkta.append(cell.value)
 
+        for row in ws_loner['C1:C1000']:
+            for cell in row:
+                if cell.value != None:
+                    lista_loner.append(cell.value)
+
+        return lista_direkta, lista_loner
 
 
 
@@ -233,6 +266,14 @@ class SkapaPerForslag:
                         lista_ej_godk_kost_utokad.append(kontonummer)
 
         return lista_ej_godk_kost_utokad
+
+
+
+
+
+
+
+
 
 
 
