@@ -1,4 +1,5 @@
 import openpyxl
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
 import os
 import shutil
 from datetime import datetime
@@ -116,10 +117,67 @@ class SkapaPerForslag:
             kontotext = x[1]
             projektnr = x[2]
             belopp = x[3]
-            ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row+1, column=1).value = konto
-            ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row, column=2).value = kontotext
-            ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row, column=3).value = projektnr
-            ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row, column=4).value = belopp
+
+            ws_berper_perforslag.column_dimensions['A'].width = 10
+            ws_berper_perforslag.column_dimensions['B'].width = 50
+            ws_berper_perforslag.column_dimensions['C'].width = 10
+            ws_berper_perforslag.column_dimensions['D'].width = 20
+
+            #konto_rubrik = ws_berper_perforslag.cell(row=1, column=1)
+            #konto_rubrik.value = "Konto"
+            #konto_rubrik.font = Font(bold=True)
+            #kontotext_rubrik = ws_berper_perforslag.cell(row=1, column=2)
+            #kontotext_rubrik.value = "Kontotext"
+            #konto_rubrik.font = Font(bold=True)
+            #projekt_rubrik = ws_berper_perforslag.cell(row=1, column=3)
+            #projekt_rubrik.value = "Projekt"
+            #projekt_rubrik.font = Font(bold=True)
+            #belopp_rubrik = ws_berper_perforslag.cell(row=1, column=4)
+            #belopp_rubrik.value = "Belopp"
+            #belopp_rubrik.font = Font(bold=True)
+
+
+
+            cell_konto =  ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row+1, column=1)
+            cell_konto.value = konto
+            cell_kontotext = ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row, column=2)
+            cell_kontotext.value = kontotext
+            cell_projektnummer = ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row, column=3)
+            cell_projektnummer.value = projektnr
+            cell_belopp = ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row, column=4)
+            cell_belopp.number_format = '#,##0.00'
+            cell_belopp.value = belopp
+            if belopp < 0:
+                cell_belopp.font = Font(color='00FF0000')
+            if konto == "B" or konto == "D":
+                cell_konto.font = Font(bold=True)
+                cell_kontotext.font = Font(bold=True)
+                cell_projektnummer.font = Font(bold=True)
+                cell_belopp.font = Font(bold=True)
+
+                stilborder = Border(top=Side(style='thin'), bottom=Side(style='thin'))
+                cell_konto.border = stilborder
+                cell_kontotext.border = stilborder
+                cell_projektnummer.border = stilborder
+                cell_belopp.border = stilborder
+                if belopp < 0:
+                    cell_belopp.font = Font(color='00FF0000', bold=True)
+
+            if konto == None and kontotext == None and projektnr != None and belopp != None:
+                cell_kontotext.value = "Totalt resultat"
+                cell_projektnummer.font = Font(bold=True)
+                cell_belopp.font = Font(bold=True)
+                cell_kontotext.font = Font(bold=True)
+                cell_konto.border = stilborder
+                cell_kontotext.border = stilborder
+                cell_projektnummer.border = stilborder
+                cell_belopp.border = stilborder
+                if belopp < 0:
+                    cell_belopp.font = Font(color='00FF0000', bold=True)
+
+
+
+
 
         self.ratt_bokslutsperiod(wb_berper)
         wb_berper.save(ny_berper)
@@ -144,8 +202,6 @@ class SkapaPerForslag:
                 datum.value = ratt_bokslutsperiod
 
     def kalk_periodiseringsforslag(self, wb_berper, ws_berper_perforslag, ny_berper):
-
-
 
         rad = 2
         col = 8
@@ -175,6 +231,7 @@ class SkapaPerForslag:
 
                 rad_kost = 4
                 rad_kost2 = 4
+
                 for row in ws_berper_perforslag['A1:A1000']:
                     for cell in row:
                         if cell.value != None:
@@ -190,18 +247,26 @@ class SkapaPerForslag:
                                     rad_kost +=1
                             #Avgör godkända kostnader
                             if isinstance(kontonr_berper, int):
-                                if kontonr_berper >= 4000 and str(kontonr_berper) != str(x):
+                                if str(kontonr_berper) != str(x) and str(kontonr_berper)[0] != "3":
                                     godk_kostnader = ws_berper_perforslag.cell(rad_kost2, col+1)
                                     godk_kostnader.value = "="+str(belopp_cell.coordinate)
                                     rad_kost2 +=1
                             #Avgör direkta kostnader
+                            c2 = 0
                             for y in lista_direkta_kostnader:
                                 if str(kontonr_berper) == str(y):
-                                    pass
+                                    print(ws_berper_perforslag.max_row+3)
+                                    #cell_direkta_kostnader_rubrik = ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row+3, column=2)
+                                    #ell_direkta_kostnader_rubrik.value = "Totala direkta kostnader"
+                                    #cell_direkta_kostnader = ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row+4, column=2)
+                                    #cell_direkta_kostnader.value = belopp_cell.coordinate
+
+
                             #Avgör lönekostnader
                             for z in lista_lonekostnader:
                                 if str(kontonr_berper) == str(z):
-                                    print(z)
+                                    pass
+                                    #print(z)
 
 
 
