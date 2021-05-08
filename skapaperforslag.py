@@ -203,6 +203,34 @@ class SkapaPerForslag:
 
     def kalk_periodiseringsforslag(self, wb_berper, ws_berper_perforslag, ny_berper):
 
+
+        #Rubrik direkta kostnader, lönekostnader, periodisering, bidrag
+        bold = Font(bold=True)
+        ws_berper_perforslag.column_dimensions['F'].width = 25
+        cell_direkta_kostnader_rubrik = ws_berper_perforslag.cell(row=2, column=6)
+        cell_direkta_kostnader_rubrik.value = "Totala direkta kostnader"
+        cell_direkta_kostnader_rubrik.font = bold
+        cell_lonekostander_rubrik = ws_berper_perforslag.cell(row=3, column=6)
+        cell_lonekostander_rubrik.value = "Totala Lönekostnader"
+        cell_lonekostander_rubrik.font = bold
+        cell_periodisering_rubrik = ws_berper_perforslag.cell(row=4, column=6)
+        cell_periodisering_rubrik.value = "Tidigare periodisering"
+        cell_periodisering_rubrik.font = bold
+        cell_bidrag_rubrik = ws_berper_perforslag.cell(row=5, column=6)
+        cell_bidrag_rubrik.value = "Tidigare erhållet bidrag"
+        cell_bidrag_rubrik.font = bold
+
+        ws_berper_perforslag.column_dimensions['G'].width = 15
+        cell_direkta_kostnader_varde = ws_berper_perforslag.cell(row=2, column=7)
+        cell_direkta_kostnader_varde.value = "=0"
+        cell_direkta_kostnader_varde.number_format = '#,##0.00'
+        cell_lonekostander_varde = ws_berper_perforslag.cell(row=3, column=7)
+        cell_lonekostander_varde.value = "=0"
+        cell_lonekostander_varde.number_format = '#,##0.00'
+
+
+
+
         rad = 2
         col = 8
         for finansiar, fingrad in zip(self.lista_finansiarer, self.lista_fingrader):
@@ -232,6 +260,9 @@ class SkapaPerForslag:
                 rad_kost = 4
                 rad_kost2 = 4
 
+                col_direkta_lone_kostnader = 6
+                rad_direkta_lone_kostnader = 2
+
                 for row in ws_berper_perforslag['A1:A1000']:
                     for cell in row:
                         if cell.value != None:
@@ -255,18 +286,17 @@ class SkapaPerForslag:
                             c2 = 0
                             for y in lista_direkta_kostnader:
                                 if str(kontonr_berper) == str(y):
-                                    print(ws_berper_perforslag.max_row+3)
-                                    #cell_direkta_kostnader_rubrik = ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row+3, column=2)
-                                    #ell_direkta_kostnader_rubrik.value = "Totala direkta kostnader"
-                                    #cell_direkta_kostnader = ws_berper_perforslag.cell(row=ws_berper_perforslag.max_row+4, column=2)
-                                    #cell_direkta_kostnader.value = belopp_cell.coordinate
+                                    cell_direkta_kostnader_varde.value += "+"+belopp_cell.coordinate
 
 
                             #Avgör lönekostnader
                             for z in lista_lonekostnader:
                                 if str(kontonr_berper) == str(z):
-                                    pass
-                                    #print(z)
+                                    cell_lonekostander_varde.value += "+"+belopp_cell.coordinate
+
+
+
+
 
 
 
