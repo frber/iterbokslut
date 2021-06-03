@@ -53,8 +53,9 @@ class SkapaPerForslag:
                     self.agressodata.append([konto, konto_text, projektnr, vht, motp, finans, belopp])
         wb_agresso.close()
         if c > 0:
-            if not self.leta_gamal_berper():
-                self.skapa_berper()
+            self.leta_gamal_berper()
+            #if not self.leta_gamal_berper():
+                #self.skapa_berper()
 
     def leta_gamal_berper(self):
         for root, dirs, files in os.walk(self.filvag_gamla_berpers):
@@ -67,21 +68,21 @@ class SkapaPerForslag:
                             wb_gammal = openpyxl.load_workbook(filvag_gamal_berper, data_only=True)
                         except:
                             self.skapa_berper()
-                            continue
-                        for sheet in wb_gammal.worksheets:
-                            projnummer_gammal = sheet.cell(32, 8).value
-                            if str(projnummer_gammal) == str(self.projnr_db):
-                                ny_berper = self.filvag_spara_berpers + "\\" + str(self.projnr_db) + ".xlsx"
-                                shutil.copy(filvag_gamal_berper, ny_berper)
-                                wb_berper = openpyxl.load_workbook(ny_berper, data_only=True)
-                                ny_sheet = 'Periodiseringsförslag '+str(self.bokslutperiod)+ " "+str(self.ar)
-                                wb_berper.create_sheet(ny_sheet)
-                                wb_berper.save(ny_berper)
-                                self.for_over_agressodata(wb_berper, ny_berper, ny_sheet)
-                                return True
+                        else:
+                            for sheet in wb_gammal.worksheets:
+                                projnummer_gammal = sheet.cell(32, 8).value
+                                if str(projnummer_gammal) == str(self.projnr_db):
+                                    ny_berper = self.filvag_spara_berpers + "\\" + str(self.projnr_db) + ".xlsx"
+                                    shutil.copy(filvag_gamal_berper, ny_berper)
+                                    wb_berper = openpyxl.load_workbook(ny_berper, data_only=True)
+                                    ny_sheet = 'Periodiseringsförslag '+str(self.bokslutperiod)+ " "+str(self.ar)
+                                    wb_berper.create_sheet(ny_sheet)
+                                    wb_berper.save(ny_berper)
+                                    self.for_over_agressodata(wb_berper, ny_berper, ny_sheet)
+                                    break
                     else:
                         self.skapa_berper()
-                        continue
+
 
                 # NAMNALTERNATIV----------------
                 #filvag_gamal_berper = os.path.join(root, fil).replace("\\","/")
@@ -259,6 +260,7 @@ class SkapaPerForslag:
 
     def kalk_periodiseringsforslag(self, wb_berper, ws_berper_perforslag, ny_berper):
 
+        #print("hej")
 
         #Rubrik direkta kostnader, lönekostnader, periodisering, bidrag
         bold = Font(bold=True)
@@ -273,10 +275,10 @@ class SkapaPerForslag:
         cell_lonekostander_rubrik = ws_berper_perforslag.cell(row=3, column=9)
         cell_lonekostander_rubrik.value = "Totala Lönekostnader"
         cell_lonekostander_rubrik.font = bold
-        cell_periodisering_rubrik = ws_berper_perforslag.cell(row=4, column=7)
+        #cell_periodisering_rubrik = ws_berper_perforslag.cell(row=4, column=7)
         #cell_periodisering_rubrik.value = "Tidigare periodisering"
         #cell_periodisering_rubrik.font = bold
-        cell_bidrag_rubrik = ws_berper_perforslag.cell(row=5, column=7)
+        #cell_bidrag_rubrik = ws_berper_perforslag.cell(row=5, column=7)
         #cell_bidrag_rubrik.value = "Tidigare erhållet bidrag"
         #cell_bidrag_rubrik.font = bold
 
@@ -291,10 +293,70 @@ class SkapaPerForslag:
 
 
 
+
+
+
+
+        lista_direkta_kostnader = self.hamta_direkta_och_lonekostnader()[0]
+        lista_lonekostnader = self.hamta_direkta_och_lonekostnader()[1]
+
+
+
+
+        for row in ws_berper_perforslag['A1:A1000']:
+            for cell in row:
+                if cell.value != None:
+                    kontonr_berper = cell.value
+                    kontonamn_berper = cell.offset(column=1).value
+                    belopp_cell = cell.offset(column=6)
+
+                    # Avgör ej godkända kostnader
+                    #for x in lista_ej_godk_kost_utokad:
+                        #if str(kontonr_berper) == str(x):
+                            #ej_godk_kostnader = ws_berper_perforslag.cell(rad_kost, col)
+                            # ej_godk_kostnader.value = "="+str(belopp_cell.coordinate)
+                            #rad_kost += 1
+                    # Avgör godkända kostnader
+                    #if isinstance(kontonr_berper, int):
+                        #if str(kontonr_berper) != str(x) and str(kontonr_berper)[0] != "3":
+                            #godk_kostnader = ws_berper_perforslag.cell(rad_kost2, col + 1)
+                            # godk_kostnader.value = "="+str(belopp_cell.coordinate)
+                            #rad_kost2 += 1
+
+                    # Avgör direkta kostnader
+                    # c2 = 0
+                    for y in lista_direkta_kostnader:
+                        if str(kontonr_berper) == str(y):
+                            cell_direkta_kostnader_varde.value += "+" + belopp_cell.coordinate
+
+                    # Avgör lönekostnader
+                    for z in lista_lonekostnader:
+                        if str(kontonr_berper) == str(z):
+                            cell_lonekostander_varde.value += "+" + belopp_cell.coordinate
+
         rad = 2
-        col = 8
+        col = 9
+        fin_c = 0
+
+        ws_berper_perforslag.column_dimensions['K'].width = 7
+
+        ws_berper_perforslag.column_dimensions['L'].width = 20
+        ws_berper_perforslag.column_dimensions['M'].width = 12
+
+        ws_berper_perforslag.column_dimensions['N'].width = 7
+
+        ws_berper_perforslag.column_dimensions['O'].width = 20
+        ws_berper_perforslag.column_dimensions['P'].width = 12
+
+        ws_berper_perforslag.column_dimensions['Q'].width = 7
+
+        ws_berper_perforslag.column_dimensions['R'].width = 20
+        ws_berper_perforslag.column_dimensions['S'].width = 12
+
         for finansiar, fingrad in zip(self.lista_finansiarer, self.lista_fingrader):
             if finansiar != None:
+                rad = 2
+                col += 3
                 motpart = self.hamta_info_fin(finansiar)[0]
                 per_fordran = self.hamta_info_fin(finansiar)[1]
                 per_skuld = self.hamta_info_fin(finansiar)[2]
@@ -302,57 +364,68 @@ class SkapaPerForslag:
                 oh_procent = self.hamta_info_fin(finansiar)[4]
                 lista_ej_godk_kost = self.hamta_info_fin(finansiar)[5]
                 lista_ej_godk_kost_utokad = self.hamta_lista_ej_godk(lista_ej_godk_kost)
-                lista_direkta_kostnader = self.hamta_direkta_och_lonekostnader()[0]
-                lista_lonekostnader = self.hamta_direkta_och_lonekostnader()[1]
 
 
 
-                cell_fin = ws_berper_perforslag.cell(rad, col)
-                #cell_fin.value = finansiar
-                cell_fingrad = ws_berper_perforslag.cell(rad, col+1)
-                cell_fingrad.number_format = '0%'
-                #cell_fingrad.value = int(fingrad)/100
+                fin_c += 1
+                cell_fin_rubr = ws_berper_perforslag.cell(rad, col)
+                cell_fin_rubr.value = "Finansiar"+" "+str(fin_c)+":"
+                cell_fin_rubr.alignment = Alignment(horizontal='center')
+
+                cell_fin_varde = ws_berper_perforslag.cell(rad, col+1)
+                cell_fin_varde.value = finansiar
+                cell_fin_varde.alignment = Alignment(horizontal='center')
+
+                cell_fingrad_rubr = ws_berper_perforslag.cell(rad+1, col)
+                cell_fingrad_rubr.value = "Finanseringsgrad:"
+                cell_fingrad_rubr.alignment = Alignment(horizontal='center')
+
+                cell_fingrad_varde = ws_berper_perforslag.cell(rad+1, col+1)
+                cell_fingrad_varde.alignment = Alignment(horizontal='center')
+                cell_fingrad_varde.number_format = '0%'
+                cell_fingrad_varde.value = int(fingrad)/100
+
+                cell_oh_rubr = ws_berper_perforslag.cell(rad+2, col)
+                cell_oh_rubr.value = "Godkänd OH:"
+                cell_oh_rubr.alignment = Alignment(horizontal='center')
+
+                cell_oh_varde = ws_berper_perforslag.cell(rad+2, col+1)
+                cell_oh_varde.value = "=0"
+                cell_oh_varde.number_format = '#,##0.00'
+                cell_oh_varde.alignment = Alignment(horizontal='center')
+
+                if oh == "All OH godkänd":
+                    for row in ws_berper_perforslag['A1:A1000']:
+                        for cell in row:
+                            if cell.value != None:
+                                kontonr_berper = cell.value
+                                #print(kontonr_berper
+                                belopp_cell = cell.offset(column=6)
+                               # print(belopp_cell)
+                                if kontonr_berper == 57990 and belopp_cell.value != None or kontonr_berper == 57991 and belopp_cell.value != None:
+                                    print(belopp_cell.coordinate)
+                                    cell_oh_varde.value += "+" + belopp_cell.coordinate
+
+
+
+
+
+
+
+
+
                 cell_ej_godk = ws_berper_perforslag.cell(rad+1, col)
                 #cell_ej_godk.value = "Ej godkända kostnader"
-                cell_godk = ws_berper_perforslag.cell(rad+1, col+1)
+                #cell_godk = ws_berper_perforslag.cell(rad+1, col+1)
                 #cell_godk.value = "Godkända kostnader"
 
-                rad_kost = 4
-                rad_kost2 = 4
+                #rad_kost = 4
+                #rad_kost2 = 4
 
                 #col_direkta_lone_kostnader = 6
                 #rad_direkta_lone_kostnader = 2
 
-                for row in ws_berper_perforslag['A1:A1000']:
-                    for cell in row:
-                        if cell.value != None:
-                            kontonr_berper = cell.value
-                            kontonamn_berper = cell.offset(column=1).value
-                            belopp_cell = cell.offset(column=6)
 
-                            #Avgör ej godkända kostnader
-                            for x in lista_ej_godk_kost_utokad:
-                                if str(kontonr_berper) == str(x):
-                                    ej_godk_kostnader = ws_berper_perforslag.cell(rad_kost, col)
-                                    #ej_godk_kostnader.value = "="+str(belopp_cell.coordinate)
-                                    rad_kost +=1
-                            #Avgör godkända kostnader
-                            if isinstance(kontonr_berper, int):
-                                if str(kontonr_berper) != str(x) and str(kontonr_berper)[0] != "3":
-                                    godk_kostnader = ws_berper_perforslag.cell(rad_kost2, col+1)
-                                    #godk_kostnader.value = "="+str(belopp_cell.coordinate)
-                                    rad_kost2 +=1
-                            #Avgör direkta kostnader
-                            c2 = 0
-                            for y in lista_direkta_kostnader:
-                                if str(kontonr_berper) == str(y):
-                                    cell_direkta_kostnader_varde.value += "+"+belopp_cell.coordinate
-
-
-                            #Avgör lönekostnader
-                            for z in lista_lonekostnader:
-                                if str(kontonr_berper) == str(z):
-                                    cell_lonekostander_varde.value += "+"+belopp_cell.coordinate
 
 
 
