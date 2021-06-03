@@ -170,3 +170,6 @@ class Tab4:
                                                                 filvag_gamla_berpers, filvag_spara_berpers)
         wb.close()
         self.prog_bar.stop()
+
+
+
