@@ -1,2 +1,3 @@
 # iterbokslut
  
+Ett projekt där tanken var att automatisera alla periodiseringar i bokslutet. Idén bestod av att använda en global databas för finansiärer i kombination med en lokal databas för sina egna projekt. Programmet hade automatiskt kunna skapa ett periodiseringsförslag utifrån agressodata och lägga in detta färdiguträknad i alla berpers. När alla periodiseringsförslag kontrollerats finns även möjligheten att automatiskt spara alla filer med rätt namn och föra över bokföringsdatan till bokföringsmall. Detta i kombination hade automatiserat stora delar av bokslutet. (Programmet kanske är 60-70% klart). 
